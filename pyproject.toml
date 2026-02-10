@@ -12,6 +12,7 @@ license = "MIT"
 keywords = []
 authors = [
   { name = "Simone Tripodi", email = "simone.tripodi@terradue.com" },
+  { name = "Fabrice Brito", email = "fabrice.brito@terradue.com" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -35,7 +36,7 @@ Issues = "https://github.com/Terradue/osc-client/issues"
 Source = "https://github.com/Terradue/osc-client"
 
 [project.scripts]
-transpiler-mate = "osc_client.cli:main"
+osc-client = "osc_client.cli:main"
 
 [tool.hatch.version]
 path = "src/osc_client/__about__.py"
@@ -65,3 +66,29 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
+
+[tool.hatch.envs.test]
+description = "Test environment"
+dependencies = [
+  "pytest>=8.0",
+  "httpx>=0.27",
+]
+
+[tool.hatch.envs.test.scripts]
+test = "pytest"
+test-q = "pytest -q"
+test-cov = "pytest --cov=opensearch_gateway"
+test-show-setup = "pytest --setup-show"
+
+[tool.hatch.envs.dev]
+description = "Development environment"
+dependencies = [
+  "pytest>=8.0",
+  "httpx>=0.27",
+  "ruff",
+]
+
+
+[tool.hatch.envs.dev.scripts]
+lint = "ruff format ."
+check = "ruff check --fix"
