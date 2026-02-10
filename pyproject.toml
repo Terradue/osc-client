@@ -1,0 +1,67 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "osc-client"
+dynamic = ["version"]
+description = 'Open Science Catalog client'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Simone Tripodi", email = "simone.tripodi@terradue.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+  "click>=8.3.0",
+  "transpiler-mate"
+]
+
+[project.urls]
+Documentation = "https://github.com/Terradue/osc-client#readme"
+Issues = "https://github.com/Terradue/osc-client/issues"
+Source = "https://github.com/Terradue/osc-client"
+
+[project.scripts]
+transpiler-mate = "osc_client.cli:main"
+
+[tool.hatch.version]
+path = "src/osc_client/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/osc_client tests}"
+
+[tool.coverage.run]
+source_pkgs = ["osc_client", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/osc_client/__about__.py",
+]
+
+[tool.coverage.paths]
+osc_client = ["src/osc_client", "*/osc-client/src/osc_client"]
+tests = ["tests", "*/osc-client/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
