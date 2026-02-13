@@ -25,6 +25,8 @@ from pydantic import (
     AwareDatetime
 )
 from requests import Session
+from requests.adapters import HTTPAdapter
+from session_adapters.file_adapter import FileAdapter
 from session_adapters.http_conts import DEFAULT_ENCODING
 from tempfile import NamedTemporaryFile
 from transpiler_mate.metadata import MetadataManager
@@ -44,9 +46,14 @@ from typing import (
 
 import json
 
+session: Session = Session()
+http_adapter = HTTPAdapter()
+session.mount('http://', http_adapter)
+session.mount('https://', http_adapter)
+session.mount('file://', FileAdapter())
+
 def execute(
     source: str,
-    session: Session,
     output: Path
 ):
     logger.debug(f"> GET {source}...")
@@ -79,11 +86,22 @@ def execute(
 
     try:
         tmp_path = Path(fd.name)
+
+        logger.debug(f"Caching the CWL document to a temporary file on {tmp_path.absolute()}...")
+
         with tmp_path.open("w") as output_stream:
             output_stream.write(input_stream.read())
 
+        logger.success(f"CWL document stored to {tmp_path.absolute()} temporary file.")
+
+        logger.debug(f"Reading Schema.org metadata from CWL document on {tmp_path.absolute()}...")
+
         manager: MetadataManager = MetadataManager(tmp_path)
         metadata: SoftwareApplication = manager.metadata
+
+        logger.success(f"Schema.org metadata read from CWL document on {tmp_path.absolute()}.")
+
+        logger.debug(f"Transpiling Schema.org metadata to OGCP API Records...")
 
         transpiler: OgcRecordsTranspiler = OgcRecordsTranspiler()
 
@@ -93,6 +111,10 @@ def execute(
             obj=data,
             by_alias=True
         )
+
+        logger.success(f"Schema.org metadata transpiled to OGCP API Records.")
+
+        logger.debug(f"Enriching OGCP API Records...")
         
         workflow_link: Link = Link(
             href=AnyUrl(source),
@@ -110,6 +132,8 @@ def execute(
         else:
             record_geojson.links = [workflow_link]
 
+        logger.success(f"OGCP API Records enriched")
+
         logger.info(f"Serializing Workflow to {output.absolute()}...")
         with output.open('w') as output_stream:
             json.dump(
@@ -118,6 +142,6 @@ def execute(
                 indent=2
             )
         
-        logger.success(f"Workflow successfully serialized to {output.absolute()}.")
+        logger.success(f"Workflow serialized to {output.absolute()}.")
     finally:
         fd.close()

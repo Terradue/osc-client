@@ -14,9 +14,6 @@
 
 from osc_client.workflow import execute as execute_workflow
 from pathlib import Path
-from requests import Session
-from requests.adapters import HTTPAdapter
-from session_adapters.file_adapter import FileAdapter
 from transpiler_mate.cli import _track
 
 import click
@@ -44,13 +41,6 @@ def main(
     ctx.ensure_object(dict)
     ctx.obj["source"] = source
 
-    session: Session = Session()
-    http_adapter = HTTPAdapter()
-    session.mount('http://', http_adapter)
-    session.mount('https://', http_adapter)
-    session.mount('file://', FileAdapter())
-    ctx.obj["session"] = session
-
     output.parent.mkdir(
         parents=True, exist_ok=True
     )
@@ -63,11 +53,9 @@ def main(
 @click.pass_context
 def workflow(ctx):
     source: str = ctx.obj["source"]
-    session: Session = ctx.obj["session"]
     output: Path = ctx.obj["output"]
     execute_workflow(
         source,
-        session,
         output
     )
 
