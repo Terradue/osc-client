@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from osc_client import load_record_geojson
+from osc_client.experiment import execute as execute_experiment
 from osc_client.workflow import execute as execute_workflow
 from pathlib import Path
 from transpiler_mate.cli import _track
+from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordGeoJSON
 
 import click
 
@@ -41,9 +44,9 @@ def main(
     ctx.ensure_object(dict)
     ctx.obj["source"] = source
 
-    output.parent.mkdir(
-        parents=True, exist_ok=True
-    )
+    record_geojson: RecordGeoJSON = load_record_geojson(source)
+    ctx.obj["record_geojson"] = record_geojson
+
     ctx.obj["output"] = output
 
 
@@ -53,9 +56,11 @@ def main(
 @click.pass_context
 def workflow(ctx):
     source: str = ctx.obj["source"]
+    record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
     output: Path = ctx.obj["output"]
     execute_workflow(
         source,
+        record_geojson,
         output
     )
 
@@ -63,8 +68,41 @@ def workflow(ctx):
     context_settings={'show_default': True}
 )
 @click.pass_context
-def experiment(ctx):
-    pass
+@click.option(
+    '--workflow-url',
+    type=click.STRING,
+    required=True,
+    help="The referencing OGC API Records workflow URL."
+)
+@click.option(
+    '--ogc-api-endpoint',
+    type=click.STRING,
+    required=True,
+    help="The referencing OGC API Processes service URL."
+)
+@click.option(
+    '--job-id',
+    type=click.STRING,
+    required=True,
+    help="The OGC API Processes Job ID."
+)
+def experiment(
+    ctx,
+    workflow_url: str,
+    ogc_api_endpoint: str,
+    job_id: str
+):
+    source: str = ctx.obj["source"]
+    record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
+    output: Path = ctx.obj["output"]
+    execute_experiment(
+        source,
+        workflow_url,
+        record_geojson,
+        ogc_api_endpoint,
+        job_id,
+        output
+    )
 
 
 @main.command(

@@ -27,8 +27,15 @@ classifiers = [
 ]
 dependencies = [
   "click>=8.3.0",
-  "transpiler-mate"
+  "loguru",
+  "ogc-api-client @ git+ssh://git@github.com/EOEPCA/ogc-api-processes-client.git@main#subdirectory=src",
+  "pydantic",
+  "session-adapters @ git+ssh://git@github.com/Terradue/session-adapters.git@main",
+  "transpiler-mate",
 ]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [project.urls]
 Documentation = "https://github.com/Terradue/osc-client#readme"
