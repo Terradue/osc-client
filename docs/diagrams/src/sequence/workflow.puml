@@ -1,0 +1,28 @@
+@startuml
+title Create the Workflow definition
+
+actor Operator as operator
+participant "Open Science Catalog\nClient" as oscc
+database "Application Packages Registry" as apr
+database "File System" as fs
+participant "Open Science Catalog" as osc
+
+operator ++
+fs ++
+oscc ++
+
+operator -> oscc : Configure Application Package
+oscc -> apr ++ : Request CWL Workflow
+apr --> oscc -- : Provide the CWL Workflow
+
+oscc -> oscc : Transpile the Application Package\nto OGC API Records
+
+oscc -> fs : Serialize ""workflow.json""
+
+oscc -> osc ++ : Upload serialized ""workflow.json""
+osc -> oscc -- : ACK
+
+
+operator --
+fs --
+oscc --
