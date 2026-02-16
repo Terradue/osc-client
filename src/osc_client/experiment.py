@@ -19,7 +19,11 @@ from ogc_api_client.api_client import ApiClient
 from ogc_api_client.api.status_api import StatusApi
 from ogc_api_client.configuration import Configuration
 from ogc_api_client.models.status_info import StatusInfo
-from osc_client import save_record_geojson
+from osc_client import (
+    cast_model,
+    save_record_geojson
+)
+from osc_client.models import ExperimentProperties
 from pydantic import AnyUrl
 from typing import Any
 from transpiler_mate.ogcapi_records import _to_datetime
@@ -35,6 +39,7 @@ PENDING = {"accepted", "running"}
 
 SUCCEEDED = "succeeded"
 
+
 def execute(
     source: str,
     workflow_url: str,
@@ -43,6 +48,7 @@ def execute(
     job_id: str,
     output: Path
 ):
+    """
     client = ApiClient(
         configuration=Configuration(
             host=ogc_api_endpoint,
@@ -114,14 +120,20 @@ def execute(
         )
 
     logger.success(f"OGC API Records 'Experiment' inputs saved to {input_files.absolute()}")
+    """
 
-    extra_properties: dict[str, Any] = record_geojson.properties.__dict__
-    extra_properties["osc:workflow"] = source
-    extra_properties["osc-prov:generatedBy"] = "osc-client"
-    extra_properties["osc-prov:startedAtTime"] = status_info.started
-    extra_properties["osc-prov:endedAtTime"] = status_info.finished
-    extra_properties["osc-prov:generated"] = "TODO"
-    extra_properties["osc-prov:describedByWorkflow"] = workflow_url
+    experiment_properties: ExperimentProperties = cast_model(
+        record_geojson.properties,
+        ExperimentProperties,
+    )
+    experiment_properties.osc_workflow = AnyUrl(source)
+    experiment_properties.osc_prov_described_by_workflow = AnyUrl(workflow_url)
+    experiment_properties.osc_prov_generated = "TODO"
+    experiment_properties.osc_prov_generated_by = "osc-client"
+    # experiment_properties.osc_prov_started_at_time = status_info.started
+    # experiment_properties.osc_prov_ended_at_time = status_info.finished
+
+    record_geojson.properties = experiment_properties
 
     logger.success(f"OGCP API Records enriched")
 

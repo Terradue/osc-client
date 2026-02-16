@@ -30,3 +30,19 @@ tasks:
     desc: Run linters
     cmds:
     - hatch run dev:lint
+
+  datamodel_codegen:
+    cmds:
+    - |
+      datamodel-codegen --input ./schemas/osc_ogcapi_records_models.yaml \
+                        --input-file-type jsonschema \
+                        --output-model-type pydantic_v2.BaseModel \
+                        --base-class transpiler_mate.ogcapi_records.ogcapi_records_models.RecordCommonProperties \
+                        # --additional-imports "pydantic.AliasChoices,typing.Any,transpiler_mate.TranspilerBaseModel" \
+                        --field-constraints \
+                        --use-schema-description \
+                        --collapse-root-models \
+                        --capitalise-enum-members \
+                        --use-one-literal-as-default \
+                        --snake-case-field \
+                        --output ./src/osc_client/models.py

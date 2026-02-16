@@ -19,6 +19,7 @@ from io import (
 )
 from loguru import logger
 from pathlib import Path
+from pydantic import BaseModel
 from requests import Session
 from requests.adapters import HTTPAdapter
 from session_adapters.file_adapter import FileAdapter
@@ -26,7 +27,8 @@ from session_adapters.http_conts import DEFAULT_ENCODING
 from tempfile import NamedTemporaryFile
 from typing import (
     Any,
-    Mapping
+    Mapping,
+    TypeVar
 )
 from transpiler_mate.metadata import MetadataManager
 from transpiler_mate.metadata.software_application_models import SoftwareApplication
@@ -107,6 +109,17 @@ def load_record_geojson(
         fd.close()
 
 
+T = TypeVar("T", bound=BaseModel)
+
+def cast_model(
+    src: BaseModel,
+    dst_cls: type[T]
+) -> T:
+    # mode="python" preserves datetimes, URLs, etc.
+    data = src.model_dump(mode="python", by_alias=True, exclude_none=False)
+    return dst_cls.model_validate(data, by_alias=True)
+
+
 def save_record_geojson(
     record_geojson: RecordGeoJSON,
     output: Path
@@ -122,8 +135,9 @@ def save_record_geojson(
         json.dump(
             record_geojson.model_dump(
                 by_alias=True,
-                exclude_none=True
-            ),
+                exclude_none=True,
+                serialize_as_any=True
+           ),
             output_stream,
             indent=2
         )
