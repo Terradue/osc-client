@@ -48,7 +48,6 @@ def execute(
     job_id: str,
     output: Path
 ):
-    """
     client = ApiClient(
         configuration=Configuration(
             host=ogc_api_endpoint,
@@ -120,7 +119,6 @@ def execute(
         )
 
     logger.success(f"OGC API Records 'Experiment' inputs saved to {input_files.absolute()}")
-    """
 
     experiment_properties: ExperimentProperties = cast_model(
         record_geojson.properties,
@@ -130,8 +128,8 @@ def execute(
     experiment_properties.osc_prov_described_by_workflow = AnyUrl(workflow_url)
     experiment_properties.osc_prov_generated = "TODO"
     experiment_properties.osc_prov_generated_by = "osc-client"
-    # experiment_properties.osc_prov_started_at_time = status_info.started
-    # experiment_properties.osc_prov_ended_at_time = status_info.finished
+    experiment_properties.osc_prov_started_at_time = status_info.started
+    experiment_properties.osc_prov_ended_at_time = status_info.finished
 
     record_geojson.properties = experiment_properties
 
