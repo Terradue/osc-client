@@ -13,7 +13,11 @@
 # limitations under the License.
 
 from loguru import logger
-from osc_client import save_record_geojson
+from osc_client import (
+    cast_model,
+    save_record_geojson
+)
+from osc_client.models import WorkflowProperties
 from pathlib import Path
 from pydantic import AnyUrl
 from transpiler_mate.ogcapi_records.ogcapi_records_models import (
@@ -24,6 +28,7 @@ from transpiler_mate.ogcapi_records.ogcapi_records_models import (
 def execute(
     source: str,
     record_geojson: RecordGeoJSON,
+    project: str,
     output: Path
 ):
     logger.debug(f"Enriching OGCP API Records...")
@@ -43,6 +48,13 @@ def execute(
         )
     else:
         record_geojson.links = [workflow_link]
+
+    workflow_properties: WorkflowProperties = cast_model(
+        record_geojson.properties,
+        WorkflowProperties,
+    )
+    workflow_properties.osc_project = project
+    record_geojson.properties = workflow_properties
 
     logger.success(f"OGCP API Records enriched")
 

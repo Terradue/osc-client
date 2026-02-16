@@ -54,13 +54,23 @@ def main(
     context_settings={'show_default': True}
 )
 @click.pass_context
-def workflow(ctx):
+@click.option(
+    '--project',
+    type=click.STRING,
+    required=True,
+    help="The referencing OGC API Records workflow URL."
+)
+def workflow(
+    ctx,
+    project: str
+):
     source: str = ctx.obj["source"]
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
     output: Path = ctx.obj["output"]
     execute_workflow(
         source,
         record_geojson,
+        project,
         output
     )
 
