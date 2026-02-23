@@ -14,31 +14,24 @@
 
 from datetime import datetime
 from loguru import logger
-from pathlib import Path
-from ogc_api_client.api_client import ApiClient
-from ogc_api_client.api.status_api import StatusApi
-from ogc_api_client.configuration import Configuration
-from ogc_api_client.models.status_info import StatusInfo
 from osc_client import (
     cast_model,
+    create_client,
+    retrieve_status_info,
     save_record_geojson
 )
+from ogc_api_client.models.status_info import StatusInfo
 from osc_client.models import ExperimentProperties
+from pathlib import Path
 from pydantic import AnyUrl
-from typing import Any
 from transpiler_mate.ogcapi_records import _to_datetime
 from transpiler_mate.ogcapi_records.ogcapi_records_models import (
     Link,
     RecordGeoJSON
 )
+from typing import Dict
 
 import yaml
-import time
-
-PENDING = {"accepted", "running"}
-
-SUCCEEDED = "succeeded"
-
 
 def execute(
     source: str,
@@ -46,31 +39,16 @@ def execute(
     record_geojson: RecordGeoJSON,
     ogc_api_endpoint: str,
     job_id: str,
-    output: Path
+    output: Path,
+    authorization_token: str | None
 ):
-    client = ApiClient(
-        configuration=Configuration(
-            host=ogc_api_endpoint,
-        )
+    status_info: StatusInfo = retrieve_status_info(
+        create_client(
+            ogc_api_endpoint,
+            authorization_token
+        ),
+        job_id
     )
-    status_api = StatusApi(api_client=client)
-
-    logger.debug(f"Retrieving the Job {job_id} status...")
-
-    status_info: StatusInfo | None = None
-    while status_info is None or status_info.status in PENDING:
-        time.sleep(10)
-
-        status_info = status_api.get_status(
-            job_id=job_id
-        )
-
-        logger.debug(f"Job {job_id} status is {status_info.status}")
-
-    if SUCCEEDED != status_info.status:
-        raise Exception(f"Impossible to create the OGC API Records 'Experiment', job '{job_id}' terminated with status '{status_info.status}' on {ogc_api_endpoint}, report to your provider")
-
-    logger.success(f"Job {job_id} execution is complete.")
 
     logger.debug(f"Enriching OGCP API Records...")
     

@@ -42,3 +42,29 @@ $defs:
       'osc-prov:describedByWorkflow':
         type: string
         format: uri
+
+  ProductProperties:
+    type: object
+    properties:
+      "osc:experiment":
+        type: string
+      "osc:status":
+        type: string
+      "osc:region":
+        type: string
+      "osc:type":
+        type: string
+      "osc:project":
+        type: string
+      "osc:missions":
+        type: string
+      "osc:variables":
+        type: string
+      "osc-prov:type":
+        type: string
+      "osc-prov:wasDerivedFrom":
+        type: string
+      "osc-prov:wasOutputFrom":
+        type: string
+      "osc-prov:describedByParameter":
+        type: string

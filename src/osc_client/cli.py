@@ -14,10 +14,12 @@
 
 from osc_client import load_record_geojson
 from osc_client.experiment import execute as execute_experiment
+from osc_client.product import execute as execute_product
 from osc_client.workflow import execute as execute_workflow
 from pathlib import Path
 from transpiler_mate.cli import _track
 from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordGeoJSON
+from typing import Dict
 
 import click
 
@@ -74,6 +76,7 @@ def workflow(
         output
     )
 
+
 @main.command(
     context_settings={'show_default': True}
 )
@@ -96,11 +99,19 @@ def workflow(
     required=True,
     help="The OGC API Processes Job ID."
 )
+@click.option(
+    "--authorization-token",
+    type=click.STRING,
+    required=False,
+    default=None,
+    help="Authorization JSON Web Token'"
+)
 def experiment(
     ctx,
     workflow_url: str,
     ogc_api_endpoint: str,
-    job_id: str
+    job_id: str,
+    authorization_token: str | None
 ):
     source: str = ctx.obj["source"]
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
@@ -111,7 +122,8 @@ def experiment(
         record_geojson,
         ogc_api_endpoint,
         job_id,
-        output
+        output,
+        authorization_token
     )
 
 
@@ -119,8 +131,50 @@ def experiment(
     context_settings={'show_default': True}
 )
 @click.pass_context
-def products(ctx):
-    pass
+@click.option(
+    '--workflow-url',
+    type=click.STRING,
+    required=True,
+    help="The referencing OGC API Records workflow URL."
+)
+@click.option(
+    '--ogc-api-endpoint',
+    type=click.STRING,
+    required=True,
+    help="The referencing OGC API Processes service URL."
+)
+@click.option(
+    '--job-id',
+    type=click.STRING,
+    required=True,
+    help="The OGC API Processes Job ID."
+)
+@click.option(
+    "--authorization-token",
+    type=click.STRING,
+    required=False,
+    default=None,
+    help="Authorization JSON Web Token'"
+)
+def products(
+    ctx,
+    experiment_url: str,
+    ogc_api_endpoint: str,
+    job_id: str,
+    authorization_token: str | None
+):
+    source: str = ctx.obj["source"]
+    record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
+    output: Path = ctx.obj["output"]
+    execute_product(
+        source,
+        ogc_api_endpoint,
+        record_geojson,
+        job_id,
+        experiment_url,
+        output,
+        authorization_token
+    )
 
 
 for command in [workflow, experiment, products]:

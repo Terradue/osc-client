@@ -18,15 +18,26 @@ from io import (
     TextIOWrapper
 )
 from loguru import logger
+from ogc_api_client.api_client import ApiClient
+from ogc_api_client.api.result_api import ResultApi
+from ogc_api_client.api.status_api import StatusApi
+from ogc_api_client.configuration import Configuration
+from ogc_api_client.models.inline_or_ref_data import InlineOrRefData
+from ogc_api_client.models.status_info import StatusInfo
 from pathlib import Path
 from pydantic import BaseModel
 from requests import Session
-from requests.adapters import HTTPAdapter
+from requests.adapters import (
+    BaseAdapter,
+    HTTPAdapter
+)
 from session_adapters.file_adapter import FileAdapter
 from session_adapters.http_conts import DEFAULT_ENCODING
+from session_adapters.oci_adapter import OCIAdapter
 from tempfile import NamedTemporaryFile
 from typing import (
     Any,
+    Dict,
     Mapping,
     TypeVar
 )
@@ -36,15 +47,78 @@ from transpiler_mate.ogcapi_records import OgcRecordsTranspiler
 from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordGeoJSON
 
 import json
+import time
+
+PENDING = {"accepted", "running"}
+
+SUCCEEDED = "succeeded"
+
+def create_client(
+    ogc_api_endpoint: str,
+    authorization_token: str | None
+) -> ApiClient:
+    return ApiClient(
+        configuration=Configuration(
+            host=ogc_api_endpoint,
+        ),
+        header_name="Authorization" if authorization_token else None,
+        header_value=f"Bearer {authorization_token}" if authorization_token else None
+    )
+
+
+def retrieve_status_info(
+    api_client: ApiClient,
+    job_id: str
+) -> StatusInfo:
+    status_api = StatusApi(api_client=api_client)
+
+    logger.debug(f"Retrieving the Job {job_id} status...")
+
+    status_info: StatusInfo | None = None
+    while status_info is None or status_info.status in PENDING:
+        time.sleep(10)
+
+        status_info = status_api.get_status(
+            job_id=job_id
+        )
+
+        logger.debug(f"Job {job_id} status is {status_info.status}")
+
+    if SUCCEEDED != status_info.status:
+        raise Exception(f"Impossible to create the OGC API Records 'Experiment', job '{job_id}' terminated with status '{status_info.status}' on {ogc_api_endpoint}, report to your provider")
+
+    logger.success(f"Job {job_id} execution is complete.")
+    return status_info
+
+
+def retrieve_results(
+    api_client: ApiClient,
+    job_id: str,
+) -> Dict[str, InlineOrRefData]:
+    result_api: ResultApi = ResultApi(api_client)
+    return result_api.get_result(
+        job_id=job_id,
+        
+    )
 
 def load_record_geojson(
     source: str
 ) -> RecordGeoJSON:
     session: Session = Session()
+
+    def mount_session(
+        scheme: str,
+        adapter: BaseAdapter
+    ):
+        logger.debug(f"Mounting '{scheme}' scheme to '{type(adapter).__name__}'...")
+        session.mount(scheme, adapter)
+        logger.debug(f"Scheme '{scheme}' successfully mount to '{type(adapter).__name__}'")
+
     http_adapter = HTTPAdapter()
-    session.mount('http://', http_adapter)
-    session.mount('https://', http_adapter)
-    session.mount('file://', FileAdapter())
+    mount_session('http://', http_adapter)
+    mount_session('https://', http_adapter)
+    mount_session('file://', FileAdapter())
+    mount_session('oci://', OCIAdapter())
 
     logger.debug(f"> GET {source}...")
 
