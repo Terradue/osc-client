@@ -26,39 +26,39 @@ from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordCommonPro
 
 
 class WorkflowProperties(RecordCommonProperties):
-    osc_project: Optional[str] = Field(None, alias='osc:project')
+    osc_project: Optional[str] = Field(None, alias="osc:project")
 
 
 class ExperimentProperties(RecordCommonProperties):
-    osc_workflow: Optional[AnyUrl] = Field(None, alias='osc:workflow')
-    osc_prov_generated_by: Optional[str] = Field(None, alias='osc-prov:generatedBy')
+    osc_workflow: Optional[AnyUrl] = Field(None, alias="osc:workflow")
+    osc_prov_generated_by: Optional[str] = Field(None, alias="osc-prov:generatedBy")
     osc_prov_started_at_time: Optional[datetime] = Field(
-        None, alias='osc-prov:startedAtTime'
+        None, alias="osc-prov:startedAtTime"
     )
     osc_prov_ended_at_time: Optional[datetime] = Field(
-        None, alias='osc-prov:endedAtTime'
+        None, alias="osc-prov:endedAtTime"
     )
-    osc_prov_generated: Optional[str] = Field(None, alias='osc-prov:generated')
+    osc_prov_generated: Optional[str] = Field(None, alias="osc-prov:generated")
     osc_prov_described_by_workflow: Optional[AnyUrl] = Field(
-        None, alias='osc-prov:describedByWorkflow'
+        None, alias="osc-prov:describedByWorkflow"
     )
 
 
 class ProductProperties(RecordCommonProperties):
-    osc_experiment: Optional[str] = Field(None, alias='osc:experiment')
-    osc_status: Optional[str] = Field(None, alias='osc:status')
-    osc_region: Optional[str] = Field(None, alias='osc:region')
-    osc_type: Optional[str] = Field(None, alias='osc:type')
-    osc_project: Optional[str] = Field(None, alias='osc:project')
-    osc_missions: Optional[str] = Field(None, alias='osc:missions')
-    osc_variables: Optional[str] = Field(None, alias='osc:variables')
-    osc_prov_type: Optional[str] = Field(None, alias='osc-prov:type')
+    osc_experiment: Optional[str] = Field(None, alias="osc:experiment")
+    osc_status: Optional[str] = Field(None, alias="osc:status")
+    osc_region: Optional[str] = Field(None, alias="osc:region")
+    osc_type: Optional[str] = Field(None, alias="osc:type")
+    osc_project: Optional[str] = Field(None, alias="osc:project")
+    osc_missions: Optional[str] = Field(None, alias="osc:missions")
+    osc_variables: Optional[str] = Field(None, alias="osc:variables")
+    osc_prov_type: Optional[str] = Field(None, alias="osc-prov:type")
     osc_prov_was_derived_from: Optional[str] = Field(
-        None, alias='osc-prov:wasDerivedFrom'
+        None, alias="osc-prov:wasDerivedFrom"
     )
     osc_prov_was_output_from: Optional[str] = Field(
-        None, alias='osc-prov:wasOutputFrom'
+        None, alias="osc-prov:wasOutputFrom"
     )
     osc_prov_described_by_parameter: Optional[str] = Field(
-        None, alias='osc-prov:describedByParameter'
+        None, alias="osc-prov:describedByParameter"
     )

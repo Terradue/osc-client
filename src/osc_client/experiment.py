@@ -18,40 +18,33 @@ from osc_client import (
     cast_model,
     create_client,
     retrieve_status_info,
-    save_record_geojson
+    save_record_geojson,
 )
-from ogc_api_client.models.status_info import StatusInfo
+from ogc_api_processes_client.models.status_info import StatusInfo
 from osc_client.models import ExperimentProperties
 from pathlib import Path
 from pydantic import AnyUrl
 from transpiler_mate.ogcapi_records import _to_datetime
-from transpiler_mate.ogcapi_records.ogcapi_records_models import (
-    Link,
-    RecordGeoJSON
-)
-from typing import Dict
+from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeoJSON
 
 import yaml
+
 
 def execute(
     source: str,
     workflow_url: str,
     record_geojson: RecordGeoJSON,
-    ogc_api_endpoint: str,
+    ogc_api_processes_endpoint: str,
     job_id: str,
     output: Path,
-    authorization_token: str | None
+    authorization_token: str,
 ):
     status_info: StatusInfo = retrieve_status_info(
-        create_client(
-            ogc_api_endpoint,
-            authorization_token
-        ),
-        job_id
+        create_client(ogc_api_processes_endpoint, authorization_token), job_id
     )
 
     logger.debug(f"Enriching OGCP API Records...")
-    
+
     workflow_link: Link = Link(
         href=AnyUrl(workflow_url),
         hreflang="en-US",
@@ -59,44 +52,40 @@ def execute(
         type="application/json",
         title=record_geojson.properties.title,
         created=record_geojson.properties.created,
-        updated=record_geojson.properties.created
+        updated=record_geojson.properties.created,
     )
     if record_geojson.links:
-        record_geojson.links.append(
-            workflow_link
-        )
+        record_geojson.links.append(workflow_link)
     else:
         record_geojson.links = [workflow_link]
 
     logger.debug("Reassembling OGC API Records 'Experiment' inputs...")
 
+    logger.debug(status_info.properties)
+
+    input_files: Path = Path(output.parent, "inputs.yaml")
     record_geojson.links.append(
         Link(
-            href=AnyUrl("./inputs.yaml"),
+            href=AnyUrl(input_files.absolute().as_uri()),
             hreflang="en-US",
             rel="input",
             type="application/yaml",
             title=f"Inputs for {record_geojson.properties.title}",
             created=_to_datetime(datetime.now()),
-            updated=_to_datetime(datetime.now())
+            updated=_to_datetime(datetime.now()),
         )
     )
 
-    input_files: Path = Path(
-        output.parent,
-        "inputs.yaml"
-    )
-    input_files.parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    input_files.parent.mkdir(parents=True, exist_ok=True)
     with input_files.open("w") as output_stream:
         yaml.dump(
-            getattr(status_info, "inputs") if hasattr(status_info, "inputs") else {},
-            output_stream
+            status_info.inputs,
+            output_stream,
         )
 
-    logger.success(f"OGC API Records 'Experiment' inputs saved to {input_files.absolute()}")
+    logger.success(
+        f"OGC API Records 'Experiment' inputs saved to {input_files.absolute()}"
+    )
 
     experiment_properties: ExperimentProperties = cast_model(
         record_geojson.properties,
@@ -113,7 +102,4 @@ def execute(
 
     logger.success(f"OGCP API Records enriched")
 
-    save_record_geojson(
-        record_geojson,
-        output
-    )
+    save_record_geojson(record_geojson, output)

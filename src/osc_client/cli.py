@@ -23,26 +23,17 @@ from typing import Dict
 
 import click
 
+
 @click.group()
-@click.argument(
-    'source',
-    type=click.STRING,
-    required=True
-)
+@click.argument("source", type=click.STRING, required=True)
 @click.option(
-    '--output',
-    type=click.Path(
-        path_type=Path
-    ),
+    "--output",
+    type=click.Path(path_type=Path),
     required=False,
-    help="The output file path"
+    help="The output file path",
 )
 @click.pass_context
-def main(
-    ctx,
-    source: str,
-    output: Path
-):
+def main(ctx, source: str, output: Path):
     ctx.ensure_object(dict)
     ctx.obj["source"] = source
 
@@ -52,130 +43,110 @@ def main(
     ctx.obj["output"] = output
 
 
-@main.command(
-    context_settings={'show_default': True}
-)
+@main.command(context_settings={"show_default": True})
 @click.pass_context
 @click.option(
-    '--project',
+    "--project",
     type=click.STRING,
     required=True,
-    help="The referencing OGC API Records workflow URL."
+    help="The referencing OGC API Records workflow URL.",
 )
-def workflow(
-    ctx,
-    project: str
-):
+def workflow(ctx, project: str):
     source: str = ctx.obj["source"]
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
     output: Path = ctx.obj["output"]
-    execute_workflow(
-        source,
-        record_geojson,
-        project,
-        output
-    )
+    execute_workflow(source, record_geojson, project, output)
 
 
-@main.command(
-    context_settings={'show_default': True}
-)
+@main.command(context_settings={"show_default": True})
 @click.pass_context
 @click.option(
-    '--workflow-url',
+    "--workflow-url",
     type=click.STRING,
     required=True,
-    help="The referencing OGC API Records workflow URL."
+    help="The referencing OGC API Records workflow URL.",
 )
 @click.option(
-    '--ogc-api-endpoint',
+    "--ogc-api-processes-endpoint",
     type=click.STRING,
     required=True,
-    help="The referencing OGC API Processes service URL."
+    help="The referencing OGC API Processes service URL.",
 )
 @click.option(
-    '--job-id',
-    type=click.STRING,
-    required=True,
-    help="The OGC API Processes Job ID."
+    "--job-id", type=click.STRING, required=True, help="The OGC API Processes Job ID."
 )
 @click.option(
     "--authorization-token",
     type=click.STRING,
     required=False,
     default=None,
-    help="Authorization JSON Web Token'"
+    help="Authorization JSON Web Token'",
 )
 def experiment(
     ctx,
     workflow_url: str,
-    ogc_api_endpoint: str,
+    ogc_api_processes_endpoint: str,
     job_id: str,
-    authorization_token: str | None
+    authorization_token: str,
 ):
     source: str = ctx.obj["source"]
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
     output: Path = ctx.obj["output"]
     execute_experiment(
-        source,
-        workflow_url,
-        record_geojson,
-        ogc_api_endpoint,
-        job_id,
-        output,
-        authorization_token
+        source=source,
+        workflow_url=workflow_url,
+        record_geojson=record_geojson,
+        ogc_api_processes_endpoint=ogc_api_processes_endpoint,
+        job_id=job_id,
+        output=output,
+        authorization_token=authorization_token,
     )
 
 
-@main.command(
-    context_settings={'show_default': True}
-)
+@main.command(context_settings={"show_default": True})
 @click.pass_context
 @click.option(
-    '--workflow-url',
+    "--workflow-url",
     type=click.STRING,
     required=True,
-    help="The referencing OGC API Records workflow URL."
+    help="The referencing OGC API Records workflow URL.",
 )
 @click.option(
-    '--ogc-api-endpoint',
+    "--ogc-api-processes-endpoint",
     type=click.STRING,
     required=True,
-    help="The referencing OGC API Processes service URL."
+    help="The referencing OGC API Processes service URL.",
 )
 @click.option(
-    '--job-id',
-    type=click.STRING,
-    required=True,
-    help="The OGC API Processes Job ID."
+    "--job-id", type=click.STRING, required=True, help="The OGC API Processes Job ID."
 )
 @click.option(
     "--authorization-token",
     type=click.STRING,
     required=False,
     default=None,
-    help="Authorization JSON Web Token'"
+    help="Authorization JSON Web Token'",
 )
 def products(
     ctx,
     experiment_url: str,
-    ogc_api_endpoint: str,
+    ogc_api_processes_endpoint: str,
     job_id: str,
-    authorization_token: str | None
+    authorization_token: str,
 ):
     source: str = ctx.obj["source"]
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
     output: Path = ctx.obj["output"]
     execute_product(
         source,
-        ogc_api_endpoint,
+        ogc_api_processes_endpoint,
         record_geojson,
         job_id,
         experiment_url,
         output,
-        authorization_token
+        authorization_token,
     )
 
 
-for command in [workflow, experiment, products]:
-    command.callback = _track(command.callback)
+# for command in [workflow, experiment, products]:
+#     command.callback = _track(command.callback)

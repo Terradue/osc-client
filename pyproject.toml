@@ -26,12 +26,12 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "click>=8.3.0",
-  "loguru",
-  "ogc-api-client @ git+ssh://git@github.com/EOEPCA/ogc-api-processes-client.git@main#subdirectory=src",
-  "pydantic",
-  "session-adapters @ git+ssh://git@github.com/Terradue/session-adapters.git@main",
-  "transpiler-mate",
+  "click==8.3.1",
+  "loguru==0.7.3",
+  "ogc-api-processes-client @ git+https://github.com/EOEPCA/ogc-api-processes-client.git@refactoring",
+  "pydantic==2.12.5",
+  "session-adapters==0.2.0",
+  "transpiler-mate==0.35.0",
 ]
 
 [tool.hatch.metadata]

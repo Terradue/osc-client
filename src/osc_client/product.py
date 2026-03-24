@@ -14,47 +14,43 @@
 
 from datetime import datetime
 from loguru import logger
-from ogc_api_client.api_client import ApiClient
-from ogc_api_client.models.inline_or_ref_data import InlineOrRefData
-from ogc_api_client.models.link import Link as OgcApiProcessesLink
-from ogc_api_client.models.status_info import StatusInfo
+from ogc_api_processes_client.api_client import ApiClient
+from ogc_api_processes_client.models.inline_or_ref_data import InlineOrRefData
+from ogc_api_processes_client.models.link import Link as OgcApiProcessesLink
+from ogc_api_processes_client.models.status_info import StatusInfo
 from osc_client import (
     cast_model,
     create_client,
     retrieve_status_info,
     retrieve_results,
-    save_record_geojson
+    save_record_geojson,
 )
 from osc_client.models import ProductProperties
 from pathlib import Path
 from pydantic import AnyUrl
 from typing import Dict
 from transpiler_mate.ogcapi_records import _to_datetime
-from transpiler_mate.ogcapi_records.ogcapi_records_models import (
-    Link,
-    RecordGeoJSON
-)
+from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeoJSON
+
 
 def execute(
     source: str,
-    ogc_api_endpoint: str,
+    ogc_api_processes_endpoint: str,
     record_geojson: RecordGeoJSON,
     job_id: str,
     experiment_url: str,
     output: Path,
-    authorization_token: str | None
+    authorization_token: str | None,
 ):
-    api_client: ApiClient = create_client(ogc_api_endpoint)
-
-    status_info: StatusInfo = retrieve_status_info(
-        api_client=api_client,
-        job_id=job_id
+    api_client: ApiClient = create_client(
+        ogc_api_processes_endpoint, authorization_token
     )
+
+    status_info: StatusInfo = retrieve_status_info(api_client=api_client, job_id=job_id)
 
     results: Dict[str, InlineOrRefData] = retrieve_results(
         api_client=api_client,
         job_id=job_id,
-        headers=headers
     )
 
     if not record_geojson.links:
@@ -70,14 +66,12 @@ def execute(
                     type=output_value.type,
                     title=output_value.title,
                     created=_to_datetime(datetime.now()),
-                    updated=_to_datetime(datetime.now())
+                    updated=_to_datetime(datetime.now()),
                 )
             )
 
-
     product_properties: ProductProperties = cast_model(
-        record_geojson.properties,
-        ProductProperties
+        record_geojson.properties, ProductProperties
     )
     product_properties.osc_experiment = experiment_url
     product_properties.osc_prov_was_derived_from = source
@@ -87,7 +81,4 @@ def execute(
 
     logger.success(f"OGCP API Records enriched")
 
-    save_record_geojson(
-        record_geojson,
-        output
-    )
+    save_record_geojson(record_geojson, output)
