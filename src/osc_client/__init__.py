@@ -40,7 +40,8 @@ import yaml
 import json
 import time
 
-PENDING = {"accepted", "running"}
+PENDING = {StatusCode.ACCEPTED, StatusCode.RUNNING}
+
 
 def create_client(ogc_api_endpoint: str, authorization_token: str | None) -> ApiClient:
     return ApiClient(
