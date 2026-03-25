@@ -24,7 +24,7 @@ from osc_client import (
     create_client,
     retrieve_status_info,
     save_record_geojson,
-    serialize_yaml
+    serialize_yaml,
 )
 from osc_client.models import ProductProperties
 from pathlib import Path
@@ -45,7 +45,7 @@ def execute(
 ):
     logger.debug(f"Enriching OGCP API Records...")
 
-    record_geojson.links.append( # type: ignore see osc_client.load_record_geojson
+    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
         Link(
             href=AnyUrl(experiment_url),
             hreflang="en-US",
@@ -74,7 +74,7 @@ def execute(
             logger.debug(f"{type(output)}: {output.__dict__}")
 
             if isinstance(output_value, OgcApiProcessesLink):
-                record_geojson.links.append( # type: ignore see osc_client.load_record_geojson
+                record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
                     Link(
                         href=AnyUrl(output_value.href),
                         hreflang=output_value.hreflang,
@@ -86,7 +86,9 @@ def execute(
                     )
                 )
     except Exception as e:
-        logger.error(f"An error occurred while retrieving results for {ogc_api_processes_endpoint}/jobs/{job_id}/results: {e}")
+        logger.error(
+            f"An error occurred while retrieving results for {ogc_api_processes_endpoint}/jobs/{job_id}/results: {e}"
+        )
 
         response_data = result_api.get_result_without_preload_content(job_id)
 
@@ -94,7 +96,7 @@ def execute(
 
         serialize_yaml(response_data.json(), outputs_file)
 
-        record_geojson.links.append( # type: ignore see osc_client.load_record_geojson
+        record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
             Link(
                 href=AnyUrl(outputs_file.absolute().as_uri()),
                 hreflang="en-US",

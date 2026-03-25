@@ -23,7 +23,7 @@ from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeo
 def execute(source: str, record_geojson: RecordGeoJSON, project: str, output: Path):
     logger.debug(f"Enriching OGCP API Records...")
 
-    record_geojson.links.append( # type: ignore see osc_client.load_record_geojson
+    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
         Link(
             href=AnyUrl(source),
             hreflang="en-US",
