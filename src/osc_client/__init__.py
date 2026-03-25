@@ -16,7 +16,6 @@ from gzip import GzipFile
 from io import BytesIO, TextIOWrapper
 from loguru import logger
 from ogc_api_processes_client.api_client import ApiClient
-from ogc_api_processes_client.api.result_api import ResultApi
 from ogc_api_processes_client.api.status_api import StatusApi
 from ogc_api_processes_client.configuration import Configuration
 from ogc_api_processes_client.models.inline_or_ref_data import InlineOrRefData
@@ -35,7 +34,9 @@ from transpiler_mate.metadata import MetadataManager
 from transpiler_mate.metadata.software_application_models import SoftwareApplication
 from transpiler_mate.ogcapi_records import OgcRecordsTranspiler
 from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordGeoJSON
+from typing import Any
 
+import yaml
 import json
 import time
 
@@ -71,16 +72,6 @@ def retrieve_status_info(api_client: ApiClient, job_id: str) -> StatusInfo:
 
     logger.success(f"Job {job_id} execution is complete.")
     return status_info
-
-
-def retrieve_results(
-    api_client: ApiClient,
-    job_id: str,
-) -> Dict[str, InlineOrRefData]:
-    result_api: ResultApi = ResultApi(api_client)
-    return result_api.get_result(
-        job_id=job_id,
-    )
 
 
 def load_record_geojson(source: str) -> RecordGeoJSON:
@@ -156,6 +147,9 @@ def load_record_geojson(source: str) -> RecordGeoJSON:
             obj=data, by_alias=True
         )
 
+        if not record_geojson.links:
+            record_geojson.links = []
+
         logger.success(f"Schema.org metadata transpiled to OGCP API Records.")
 
         return record_geojson
@@ -187,3 +181,12 @@ def save_record_geojson(record_geojson: RecordGeoJSON, output: Path):
         )
 
     logger.success(f"OGC API Records 'Experiment' serialized to {output.absolute()}.")
+
+
+def serialize_yaml(data: Any, target_file: Path):
+    target_file.parent.mkdir(parents=True, exist_ok=True)
+    with target_file.open("w") as output_stream:
+        yaml.dump(
+            data,
+            output_stream,
+        )

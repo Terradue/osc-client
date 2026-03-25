@@ -106,7 +106,7 @@ def experiment(
 @main.command(context_settings={"show_default": True})
 @click.pass_context
 @click.option(
-    "--workflow-url",
+    "--experiment-url",
     type=click.STRING,
     required=True,
     help="The referencing OGC API Records workflow URL.",
@@ -148,5 +148,5 @@ def products(
     )
 
 
-# for command in [workflow, experiment, products]:
-#     command.callback = _track(command.callback)
+for command in [workflow, experiment, products]:
+    command.callback = _track(command.callback)
