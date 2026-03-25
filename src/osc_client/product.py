@@ -45,7 +45,7 @@ def execute(
 ):
     logger.debug(f"Enriching OGCP API Records...")
 
-    record_geojson.links.append(
+    record_geojson.links.append( # type: ignore see osc_client.load_record_geojson
         Link(
             href=AnyUrl(experiment_url),
             hreflang="en-US",
@@ -65,9 +65,6 @@ def execute(
 
     result_api: ResultApi = ResultApi(api_client)
 
-    if not record_geojson.links:
-        record_geojson.links = []
-
     try:
         results: Dict[str, InlineOrRefData] = result_api.get_result(
             job_id=job_id,
@@ -77,7 +74,7 @@ def execute(
             logger.debug(f"{type(output)}: {output.__dict__}")
 
             if isinstance(output_value, OgcApiProcessesLink):
-                record_geojson.links.append(
+                record_geojson.links.append( # type: ignore see osc_client.load_record_geojson
                     Link(
                         href=AnyUrl(output_value.href),
                         hreflang=output_value.hreflang,
@@ -97,7 +94,7 @@ def execute(
 
         serialize_yaml(response_data.json(), outputs_file)
 
-        record_geojson.links.append(
+        record_geojson.links.append( # type: ignore see osc_client.load_record_geojson
             Link(
                 href=AnyUrl(outputs_file.absolute().as_uri()),
                 hreflang="en-US",

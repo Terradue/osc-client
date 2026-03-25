@@ -23,19 +23,17 @@ from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeo
 def execute(source: str, record_geojson: RecordGeoJSON, project: str, output: Path):
     logger.debug(f"Enriching OGCP API Records...")
 
-    workflow_link: Link = Link(
-        href=AnyUrl(source),
-        hreflang="en-US",
-        rel="service-desc",
-        type="application/cwl",
-        title=record_geojson.properties.title,
-        created=record_geojson.properties.created,
-        updated=record_geojson.properties.created,
+    record_geojson.links.append( # type: ignore see osc_client.load_record_geojson
+        Link(
+            href=AnyUrl(source),
+            hreflang="en-US",
+            rel="service-desc",
+            type="application/cwl",
+            title=record_geojson.properties.title,
+            created=record_geojson.properties.created,
+            updated=record_geojson.properties.created,
+        )
     )
-    if record_geojson.links:
-        record_geojson.links.append(workflow_link)
-    else:
-        record_geojson.links = [workflow_link]
 
     workflow_properties: WorkflowProperties = cast_model(
         record_geojson.properties,
