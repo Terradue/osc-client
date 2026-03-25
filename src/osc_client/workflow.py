@@ -25,13 +25,35 @@ def execute(source: str, record_geojson: RecordGeoJSON, project: str, output: Pa
 
     record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
         Link(
-            href=AnyUrl(source),
+            rel="parent",
+            href="../catalog.json",
+            type="application/json",
+            title="Workflows",
             hreflang="en-US",
-            rel="service-desc",
+            created=None,
+            updated=None
+        )
+    )
+    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
+        Link(
+            href=source,
+            hreflang="en-US",
+            rel="application",
             type="application/cwl",
             title=record_geojson.properties.title,
             created=record_geojson.properties.created,
             updated=record_geojson.properties.created,
+        )
+    )
+    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
+        Link(
+            href="https://cwltool.readthedocs.io/en/latest/",
+            hreflang="en-US",
+            rel="application-platform",
+            type="text/html",
+            title="cwltool",
+            created=None,
+            updated=None,
         )
     )
 
@@ -44,4 +66,4 @@ def execute(source: str, record_geojson: RecordGeoJSON, project: str, output: Pa
 
     logger.success(f"OGCP API Records enriched")
 
-    save_record_geojson(record_geojson, output)
+    save_record_geojson(record_geojson, Path(output, f"workflows/{record_geojson.id}/record.json"))

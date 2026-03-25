@@ -19,9 +19,9 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
-from pydantic import AnyUrl, Field, RootModel
+from pydantic import Field
 from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordCommonProperties
 
 
@@ -30,7 +30,7 @@ class WorkflowProperties(RecordCommonProperties):
 
 
 class ExperimentProperties(RecordCommonProperties):
-    osc_workflow: Optional[AnyUrl] = Field(None, alias="osc:workflow")
+    osc_workflow: Optional[str] = Field(None, alias="osc:workflow")
     osc_prov_generated_by: Optional[str] = Field(None, alias="osc-prov:generatedBy")
     osc_prov_started_at_time: Optional[datetime] = Field(
         None, alias="osc-prov:startedAtTime"
@@ -39,13 +39,13 @@ class ExperimentProperties(RecordCommonProperties):
         None, alias="osc-prov:endedAtTime"
     )
     osc_prov_generated: Optional[str] = Field(None, alias="osc-prov:generated")
-    osc_prov_described_by_workflow: Optional[AnyUrl] = Field(
+    osc_prov_described_by_workflow: Optional[str] = Field(
         None, alias="osc-prov:describedByWorkflow"
     )
 
 
 class ProductProperties(RecordCommonProperties):
-    osc_experiment: Optional[AnyUrl] = Field(None, alias="osc:experiment")
+    osc_experiment: Optional[str] = Field(None, alias="osc:experiment")
     osc_status: Optional[str] = Field(None, alias="osc:status")
     osc_region: Optional[str] = Field(None, alias="osc:region")
     osc_type: Optional[str] = Field(None, alias="osc:type")

@@ -28,7 +28,6 @@ $defs:
     properties:
       'osc:workflow':
         type: string
-        format: uri
       'osc-prov:generatedBy':
         type: string
       'osc-prov:startedAtTime':
@@ -41,14 +40,12 @@ $defs:
         type: string
       'osc-prov:describedByWorkflow':
         type: string
-        format: uri
 
   ProductProperties:
     type: object
     properties:
       "osc:experiment":
         type: string
-        format: uri
       "osc:status":
         type: string
       "osc:region":

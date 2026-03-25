@@ -38,8 +38,7 @@ def execute(
     source: str,
     ogc_api_processes_endpoint: str,
     record_geojson: RecordGeoJSON,
-    job_id: str,
-    experiment_url: str,
+    experiment_id: str,
     output: Path,
     authorization_token: str | None,
 ):
@@ -47,13 +46,24 @@ def execute(
 
     record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
         Link(
-            href=AnyUrl(experiment_url),
+            rel="parent",
+            href="../catalog.json",
+            type="application/json",
+            title="Products",
             hreflang="en-US",
-            rel="derived_from",
+            created=None,
+            updated=None
+        )
+    )
+    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
+        Link(
+            href=f"../../experiments/{experiment_id}/record.json",
+            hreflang="en-US",
+            rel="related",
             type="application/json",
             title=record_geojson.properties.title,
-            created=record_geojson.properties.created,
-            updated=record_geojson.properties.created,
+            created=None,
+            updated=None,
         )
     )
 
@@ -61,13 +71,13 @@ def execute(
         ogc_api_processes_endpoint, authorization_token
     )
 
-    status_info: StatusInfo = retrieve_status_info(api_client=api_client, job_id=job_id)
+    status_info: StatusInfo = retrieve_status_info(api_client=api_client, job_id=record_geojson.id)
 
     result_api: ResultApi = ResultApi(api_client)
 
     try:
         results: Dict[str, InlineOrRefData] = result_api.get_result(
-            job_id=job_id,
+            job_id=record_geojson.id,
         )
 
         for output_value in results.values():
@@ -76,7 +86,7 @@ def execute(
             if isinstance(output_value, OgcApiProcessesLink):
                 record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
                     Link(
-                        href=AnyUrl(output_value.href),
+                        href=output_value.href,
                         hreflang=output_value.hreflang,
                         rel=output_value.rel,
                         type=output_value.type,
@@ -87,22 +97,22 @@ def execute(
                 )
     except Exception as e:
         logger.error(
-            f"An error occurred while retrieving results for {ogc_api_processes_endpoint}/jobs/{job_id}/results: {e}"
+            f"An error occurred while retrieving results for {ogc_api_processes_endpoint}/jobs/{record_geojson.id}/results: {e}"
         )
 
-        response_data = result_api.get_result_without_preload_content(job_id)
+        response_data = result_api.get_result_without_preload_content(record_geojson.id)
 
-        outputs_file: Path = Path(output.parent, "outputs.yaml")
+        outputs_file: Path = Path(output.parent, "output.yaml")
 
         serialize_yaml(response_data.json(), outputs_file)
 
         record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
             Link(
-                href=AnyUrl(f"{experiment_url.split('#')[0]}#/products/{job_id}/outputs.yaml"),
+                href=f"./{outputs_file.name}",
                 hreflang="en-US",
                 rel="output",
                 type="application/yaml",
-                title=f"Results of {record_geojson.properties.title}",
+                title="Output parameter",
                 created=_to_datetime(datetime.now()),
                 updated=_to_datetime(datetime.now()),
             )
@@ -111,7 +121,7 @@ def execute(
     product_properties: ProductProperties = cast_model(
         record_geojson.properties, ProductProperties
     )
-    product_properties.osc_experiment = AnyUrl(experiment_url)
+    product_properties.osc_experiment = experiment_id
     product_properties.osc_prov_was_derived_from = source
     product_properties.osc_prov_was_output_from = source
 

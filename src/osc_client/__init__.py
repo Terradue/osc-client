@@ -18,7 +18,6 @@ from loguru import logger
 from ogc_api_processes_client.api_client import ApiClient
 from ogc_api_processes_client.api.status_api import StatusApi
 from ogc_api_processes_client.configuration import Configuration
-from ogc_api_processes_client.models.inline_or_ref_data import InlineOrRefData
 from ogc_api_processes_client.models.status_code import StatusCode
 from ogc_api_processes_client.models.status_info import StatusInfo
 from pathlib import Path
@@ -29,11 +28,11 @@ from session_adapters.file_adapter import FileAdapter
 from session_adapters.http_conts import DEFAULT_ENCODING
 from session_adapters.oci_adapter import OCIAdapter
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, Mapping, TypeVar
+from typing import Any, Mapping, TypeVar
 from transpiler_mate.metadata import MetadataManager
 from transpiler_mate.metadata.software_application_models import SoftwareApplication
 from transpiler_mate.ogcapi_records import OgcRecordsTranspiler
-from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordGeoJSON
+from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeoJSON
 from typing import Any
 
 import yaml
@@ -150,6 +149,18 @@ def load_record_geojson(source: str) -> RecordGeoJSON:
 
         if not record_geojson.links:
             record_geojson.links = []
+
+        record_geojson.links.append(
+            Link(
+                rel="root",
+                href="../../catalog.json",
+                type="application/json",
+                title="Open Science Catalog",
+                hreflang="en-US",
+                created=None,
+                updated=None
+            )
+        )
 
         logger.success(f"Schema.org metadata transpiled to OGCP API Records.")
 

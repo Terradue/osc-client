@@ -30,11 +30,9 @@ from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeo
 
 
 def execute(
-    source: str,
-    workflow_url: str,
+    workflow_id: str,
     record_geojson: RecordGeoJSON,
     ogc_api_processes_endpoint: str,
-    job_id: str,
     output: Path,
     authorization_token: str,
 ):
@@ -42,9 +40,20 @@ def execute(
 
     record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
         Link(
-            href=AnyUrl(workflow_url),
+            rel="parent",
+            href="../catalog.json",
+            type="application/json",
+            title="Experiments",
             hreflang="en-US",
-            rel="derived_from",
+            created=None,
+            updated=None
+        )
+    )
+    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
+        Link(
+            href=f"../../workflows/{workflow_id}/record.json",
+            hreflang="en-US",
+            rel="related",
             type="application/json",
             title=record_geojson.properties.title,
             created=record_geojson.properties.created,
@@ -55,22 +64,24 @@ def execute(
     logger.debug("Reassembling OGC API Records 'Experiment' inputs...")
 
     status_info: StatusInfo = retrieve_status_info(
-        create_client(ogc_api_processes_endpoint, authorization_token), job_id
+        create_client(ogc_api_processes_endpoint, authorization_token),
+        record_geojson.id
     )
 
     logger.debug(status_info.properties)
 
-    input_files: Path = Path(output.parent, "inputs.yaml")
+    target_file = Path(output, f"experiments/{record_geojson.id}/record.json")
+    input_files: Path = Path(target_file.parent, "input.yaml")
 
     serialize_yaml(status_info.inputs, input_files)
 
     record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
         Link(
-            href=AnyUrl(f"{workflow_url.split('#')[0]}#/experiments/{job_id}/inputs.yaml"),
+            href=f"./{input_files.name}",
             hreflang="en-US",
             rel="input",
             type="application/yaml",
-            title=f"Inputs for {record_geojson.properties.title}",
+            title="Input parameters",
             created=_to_datetime(datetime.now()),
             updated=_to_datetime(datetime.now()),
         )
@@ -84,8 +95,8 @@ def execute(
         record_geojson.properties,
         ExperimentProperties,
     )
-    experiment_properties.osc_workflow = AnyUrl(source)
-    experiment_properties.osc_prov_described_by_workflow = AnyUrl(workflow_url)
+    experiment_properties.osc_workflow = workflow_id
+    experiment_properties.osc_prov_described_by_workflow = workflow_id
     experiment_properties.osc_prov_generated = "TODO"
     experiment_properties.osc_prov_generated_by = "osc-client"
     experiment_properties.osc_prov_started_at_time = status_info.started
@@ -95,4 +106,4 @@ def execute(
 
     logger.success(f"OGCP API Records enriched")
 
-    save_record_geojson(record_geojson, output)
+    save_record_geojson(record_geojson, target_file)

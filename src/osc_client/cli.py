@@ -27,17 +27,21 @@ import click
 @click.group()
 @click.argument("source", type=click.STRING, required=True)
 @click.option(
+    "--id", type=click.STRING, required=True, help="The OGC API Processes Job ID."
+)
+@click.option(
     "--output",
     type=click.Path(path_type=Path),
-    required=False,
-    help="The output file path",
+    required=True,
+    help="The output directory path",
 )
 @click.pass_context
-def main(ctx, source: str, output: Path):
+def main(ctx, source: str, id: str, output: Path):
     ctx.ensure_object(dict)
     ctx.obj["source"] = source
 
     record_geojson: RecordGeoJSON = load_record_geojson(source)
+    record_geojson.id = id
     ctx.obj["record_geojson"] = record_geojson
 
     ctx.obj["output"] = output
@@ -61,7 +65,7 @@ def workflow(ctx, project: str):
 @main.command(context_settings={"show_default": True})
 @click.pass_context
 @click.option(
-    "--workflow-url",
+    "--workflow-id",
     type=click.STRING,
     required=True,
     help="The referencing OGC API Records workflow URL.",
@@ -71,9 +75,6 @@ def workflow(ctx, project: str):
     type=click.STRING,
     required=True,
     help="The referencing OGC API Processes service URL.",
-)
-@click.option(
-    "--job-id", type=click.STRING, required=True, help="The OGC API Processes Job ID."
 )
 @click.option(
     "--authorization-token",
@@ -84,20 +85,16 @@ def workflow(ctx, project: str):
 )
 def experiment(
     ctx,
-    workflow_url: str,
+    workflow_id: str,
     ogc_api_processes_endpoint: str,
-    job_id: str,
     authorization_token: str,
 ):
-    source: str = ctx.obj["source"]
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
     output: Path = ctx.obj["output"]
     execute_experiment(
-        source=source,
-        workflow_url=workflow_url,
+        workflow_id=workflow_id,
         record_geojson=record_geojson,
         ogc_api_processes_endpoint=ogc_api_processes_endpoint,
-        job_id=job_id,
         output=output,
         authorization_token=authorization_token,
     )
@@ -106,19 +103,16 @@ def experiment(
 @main.command(context_settings={"show_default": True})
 @click.pass_context
 @click.option(
-    "--experiment-url",
+    "--experiment-id",
     type=click.STRING,
     required=True,
-    help="The referencing OGC API Records workflow URL.",
+    help="The referencing OGC API Records workflow ID.",
 )
 @click.option(
     "--ogc-api-processes-endpoint",
     type=click.STRING,
     required=True,
     help="The referencing OGC API Processes service URL.",
-)
-@click.option(
-    "--job-id", type=click.STRING, required=True, help="The OGC API Processes Job ID."
 )
 @click.option(
     "--authorization-token",
@@ -129,9 +123,8 @@ def experiment(
 )
 def products(
     ctx,
-    experiment_url: str,
+    experiment_id: str,
     ogc_api_processes_endpoint: str,
-    job_id: str,
     authorization_token: str,
 ):
     source: str = ctx.obj["source"]
@@ -141,8 +134,7 @@ def products(
         source,
         ogc_api_processes_endpoint,
         record_geojson,
-        job_id,
-        experiment_url,
+        experiment_id,
         output,
         authorization_token,
     )
