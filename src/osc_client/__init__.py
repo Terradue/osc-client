@@ -22,6 +22,7 @@ from ogc_api_processes_client.models.status_code import StatusCode
 from ogc_api_processes_client.models.status_info import StatusInfo
 from pathlib import Path
 from pydantic import BaseModel
+from pystac import Catalog, Link as PystacLink
 from requests import Session
 from requests.adapters import BaseAdapter, HTTPAdapter
 from session_adapters.file_adapter import FileAdapter
@@ -179,7 +180,7 @@ def cast_model(src: BaseModel, dst_cls: type[T]) -> T:
 
 
 def save_record_geojson(record_geojson: RecordGeoJSON, output: Path):
-    logger.info(f"Serializing OGC API Records 'Experiment' to {output.absolute()}...")
+    logger.info(f"Serializing OGC API Records to {output.absolute()}...")
 
     output.parent.mkdir(parents=True, exist_ok=True)
 
@@ -193,6 +194,37 @@ def save_record_geojson(record_geojson: RecordGeoJSON, output: Path):
         )
 
     logger.success(f"OGC API Records 'Experiment' serialized to {output.absolute()}.")
+
+    catalog_file = Path(output.parent.parent, "catalog.json")
+
+    if catalog_file.exists:
+        logger.info(f"Updating STAC Catalog from {output.absolute()}...")
+
+        href: str = f"./{record_geojson.id}/record.json"
+
+        catalog: Catalog = Catalog.from_file(catalog_file)
+
+        # Check whether the same rel + href is already present
+        for link in catalog.links:
+            if  link.get_href() == href:
+                logger.info(f"Link {href} already present in {output.absolute()}, update is not required.")
+                return
+            
+        catalog.add_link(
+            PystacLink(
+                rel="item",
+                target=href,
+                media_type="application/json",
+                title=record_geojson.properties.title,
+            )
+        )
+
+        logger.info(f"Saving STAC Catalog to {catalog_file.absolute()}...")
+        catalog.save_object(dest_href=catalog_file.absolute().as_posix())
+        logger.success(f"STAC Catalog successfully saved to {catalog_file.absolute()}.")
+    else:
+        logger.warning(f"Catalog file {catalog_file.absolute()} not found, skipping the update")
+
 
 
 def serialize_yaml(data: Any, target_file: Path):
