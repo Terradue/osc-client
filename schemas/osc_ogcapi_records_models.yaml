@@ -48,6 +48,7 @@ $defs:
     properties:
       "osc:experiment":
         type: string
+        format: uri
       "osc:status":
         type: string
       "osc:region":

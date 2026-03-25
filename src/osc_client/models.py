@@ -45,7 +45,7 @@ class ExperimentProperties(RecordCommonProperties):
 
 
 class ProductProperties(RecordCommonProperties):
-    osc_experiment: Optional[str] = Field(None, alias="osc:experiment")
+    osc_experiment: Optional[AnyUrl] = Field(None, alias="osc:experiment")
     osc_status: Optional[str] = Field(None, alias="osc:status")
     osc_region: Optional[str] = Field(None, alias="osc:region")
     osc_type: Optional[str] = Field(None, alias="osc:type")

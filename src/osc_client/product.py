@@ -111,7 +111,7 @@ def execute(
     product_properties: ProductProperties = cast_model(
         record_geojson.properties, ProductProperties
     )
-    product_properties.osc_experiment = experiment_url
+    product_properties.osc_experiment = AnyUrl(experiment_url)
     product_properties.osc_prov_was_derived_from = source
     product_properties.osc_prov_was_output_from = source
 
