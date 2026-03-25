@@ -98,7 +98,7 @@ def execute(
 
         record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
             Link(
-                href=AnyUrl(outputs_file.absolute().as_uri()),
+                href=AnyUrl(f"{experiment_url.split('#')[0]}#/products/{job_id}/outputs.yaml"),
                 hreflang="en-US",
                 rel="output",
                 type="application/yaml",
