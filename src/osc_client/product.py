@@ -23,15 +23,23 @@ from osc_client import (
     cast_model,
     create_client,
     retrieve_status_info,
-    save_record_geojson,
+    dump_data,
     serialize_yaml,
 )
-from osc_client.models import ProductProperties
+from osc_client.osc_extension import OscExtension, OscStatus, OscType
 from pathlib import Path
-from pydantic import AnyUrl
+from pystac import (
+    Asset,
+    Collection,
+    Extent,
+    Link,
+    RelType,
+    SpatialExtent,
+    TemporalExtent,
+)
 from typing import Dict
 from transpiler_mate.ogcapi_records import _to_datetime
-from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeoJSON
+from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordGeoJSON
 
 
 def execute(
@@ -42,28 +50,59 @@ def execute(
     output: Path,
     authorization_token: str | None,
 ):
-    logger.debug(f"Enriching OGCP API Records...")
+    logger.debug(f"Enriching STAC Collection...")
+    target_file = Path(output, f"products/{record_geojson.id}/collection.json")
 
-    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
+    collection: Collection = Collection(
+        id=record_geojson.id,
+        title=record_geojson.properties.title,
+        description=record_geojson.properties.description
+        if record_geojson.properties.description
+        else f"{record_geojson.id} Product",
+        extent=Extent(
+            spatial=SpatialExtent([[-180.0, -90.0, 180.0, 90.0]]),
+            temporal=TemporalExtent(
+                [[record_geojson.properties.created, record_geojson.properties.created]]
+            ),
+        ),
+        license=record_geojson.properties.license
+        if record_geojson.properties.license
+        else "proprietary",
+        keywords=record_geojson.properties.keywords,
+    )
+
+    if record_geojson.links:
+        for original_link in record_geojson.links:
+            rel_value = original_link.rel or str(RelType.ROOT)
+            normalized_rel = rel_value.lower().replace("-", "_")
+            try:
+                rel: str | RelType = RelType(normalized_rel)
+            except ValueError:
+                rel = rel_value
+
+            collection.add_link(
+                Link(
+                    rel=rel,
+                    target=original_link.href,
+                    media_type=original_link.type,
+                    title=original_link.title,
+                )
+            )
+
+    collection.add_link(
         Link(
-            rel="parent",
-            href="../catalog.json",
-            type="application/json",
+            rel=RelType.PARENT,
+            target="../catalog.json",
+            media_type="application/json",
             title="Products",
-            hreflang="en-US",
-            created=None,
-            updated=None,
         )
     )
-    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
+    collection.add_link(
         Link(
-            href=f"../../experiments/{experiment_id}/record.json",
-            hreflang="en-US",
-            rel="related",
-            type="application/json",
+            target=f"../../experiments/{experiment_id}/record.json",
+            rel=RelType.VIA,
+            media_type="application/json",
             title=record_geojson.properties.title,
-            created=None,
-            updated=None,
         )
     )
 
@@ -86,15 +125,12 @@ def execute(
             logger.debug(f"{type(output)}: {output.__dict__}")
 
             if isinstance(output_value, OgcApiProcessesLink):
-                record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
+                collection.add_link(
                     Link(
-                        href=output_value.href,
-                        hreflang=output_value.hreflang,
-                        rel=output_value.rel,
-                        type=output_value.type,
+                        target=output_value.href,
+                        rel=RelType.ITEM,
+                        media_type=output_value.type,
                         title=output_value.title,
-                        created=_to_datetime(datetime.now()),
-                        updated=_to_datetime(datetime.now()),
                     )
                 )
     except Exception as e:
@@ -104,31 +140,25 @@ def execute(
 
         response_data = result_api.get_result_without_preload_content(record_geojson.id)
 
-        outputs_file: Path = Path(output.parent, "output.yaml")
+        outputs_file: Path = Path(target_file.parent, "output.yaml")
 
         serialize_yaml(response_data.json(), outputs_file)
 
-        record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
-            Link(
+        collection.add_asset(
+            "output",
+            Asset(
                 href=f"./{outputs_file.name}",
-                hreflang="en-US",
-                rel="output",
-                type="application/yaml",
                 title="Output parameter",
-                created=_to_datetime(datetime.now()),
-                updated=_to_datetime(datetime.now()),
-            )
+                media_type="application/yaml",
+                description=f"{record_geojson.id} Outputs",
+            ),
         )
 
-    product_properties: ProductProperties = cast_model(
-        record_geojson.properties, ProductProperties
-    )
-    product_properties.osc_experiment = experiment_id
-    product_properties.osc_prov_was_derived_from = source
-    product_properties.osc_prov_was_output_from = source
+    osc_ext: OscExtension = OscExtension.ext(collection, add_if_missing=True)
+    osc_ext.experiment = experiment_id
+    osc_ext.osc_type = OscType.PRODUCT
+    osc_ext.status = OscStatus.COMPLETED
 
-    record_geojson.properties = product_properties
+    logger.success(f"STAC Collection enriched")
 
-    logger.success(f"OGCP API Records enriched")
-
-    save_record_geojson(record_geojson, output)
+    dump_data(collection.to_dict(), target_file)

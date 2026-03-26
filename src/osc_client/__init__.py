@@ -34,7 +34,7 @@ from transpiler_mate.metadata import MetadataManager
 from transpiler_mate.metadata.software_application_models import SoftwareApplication
 from transpiler_mate.ogcapi_records import OgcRecordsTranspiler
 from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeoJSON
-from typing import Any
+from typing import Any, Mapping
 
 import yaml
 import json
@@ -179,16 +179,14 @@ def cast_model(src: BaseModel, dst_cls: type[T]) -> T:
     return dst_cls.model_validate(data, by_alias=True)
 
 
-def save_record_geojson(record_geojson: RecordGeoJSON, output: Path):
+def dump_data(data: Mapping[str, Any], output: Path):
     logger.info(f"Serializing OGC API Records to {output.absolute()}...")
 
     output.parent.mkdir(parents=True, exist_ok=True)
 
     with output.open("w") as output_stream:
         json.dump(
-            record_geojson.model_dump(
-                by_alias=True, exclude_none=True, serialize_as_any=True
-            ),
+            data,
             output_stream,
             indent=2,
         )
@@ -200,7 +198,7 @@ def save_record_geojson(record_geojson: RecordGeoJSON, output: Path):
     if catalog_file.exists():
         logger.info(f"Updating STAC Catalog from {output.absolute()}...")
 
-        href: str = f"./{record_geojson.id}/record.json"
+        href: str = f"./{data["id"]}/record.json"
 
         catalog: Catalog = Catalog.from_file(catalog_file)
 
@@ -217,7 +215,7 @@ def save_record_geojson(record_geojson: RecordGeoJSON, output: Path):
                 rel="item",
                 target=href,
                 media_type="application/json",
-                title=record_geojson.properties.title,
+                title=data["properties"]["title"] if "properties" in data else data["title"] if "title" in data else None,
             )
         )
 

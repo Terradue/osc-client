@@ -18,7 +18,7 @@ from osc_client import (
     cast_model,
     create_client,
     retrieve_status_info,
-    save_record_geojson,
+    dump_data,
     serialize_yaml,
 )
 from ogc_api_processes_client.models.status_info import StatusInfo
@@ -107,4 +107,9 @@ def execute(
 
     logger.success(f"OGCP API Records enriched")
 
-    save_record_geojson(record_geojson, target_file)
+    dump_data(
+        record_geojson.model_dump(
+            by_alias=True, exclude_none=True, serialize_as_any=True
+        ),
+        target_file,
+    )
