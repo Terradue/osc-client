@@ -91,6 +91,7 @@ def execute(
         f"OGC API Records 'Experiment' inputs saved to {input_files.absolute()}"
     )
 
+    record_geojson.properties.type = "experiment"
     experiment_properties: ExperimentProperties = cast_model(
         record_geojson.properties,
         ExperimentProperties,

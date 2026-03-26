@@ -56,6 +56,7 @@ def execute(source: str, record_geojson: RecordGeoJSON, project: str, output: Pa
         )
     )
 
+    record_geojson.properties.type = "workflow"
     workflow_properties: WorkflowProperties = cast_model(
         record_geojson.properties,
         WorkflowProperties,
