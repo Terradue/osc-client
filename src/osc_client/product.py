@@ -73,16 +73,9 @@ def execute(
 
     if record_geojson.links:
         for original_link in record_geojson.links:
-            rel_value = original_link.rel or str(RelType.ROOT)
-            normalized_rel = rel_value.lower().replace("-", "_")
-            try:
-                rel: str | RelType = RelType(normalized_rel)
-            except ValueError:
-                rel = rel_value
-
             collection.add_link(
                 Link(
-                    rel=rel,
+                    rel=original_link.rel if original_link.rel else RelType.ALTERNATE,
                     target=original_link.href,
                     media_type=original_link.type,
                     title=original_link.title,
@@ -100,7 +93,7 @@ def execute(
     collection.add_link(
         Link(
             target=f"../../experiments/{experiment_id}/record.json",
-            rel=RelType.VIA,
+            rel="related",
             media_type="application/json",
             title=record_geojson.properties.title,
         )
@@ -161,4 +154,4 @@ def execute(
 
     logger.success(f"STAC Collection enriched")
 
-    dump_data(collection.to_dict(), target_file)
+    dump_data(collection.to_dict(), target_file, RelType.CHILD)
