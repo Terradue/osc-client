@@ -46,7 +46,7 @@ def execute(
             title="Experiments",
             hreflang="en-US",
             created=None,
-            updated=None
+            updated=None,
         )
     )
     record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
@@ -65,7 +65,7 @@ def execute(
 
     status_info: StatusInfo = retrieve_status_info(
         create_client(ogc_api_processes_endpoint, authorization_token),
-        record_geojson.id
+        record_geojson.id,
     )
 
     logger.debug(status_info.properties)

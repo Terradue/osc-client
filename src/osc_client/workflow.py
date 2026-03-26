@@ -14,9 +14,8 @@
 
 from loguru import logger
 from osc_client import cast_model, save_record_geojson
-from osc_client.models import WorkflowProperties
+from osc_client.models import OscStatus, WorkflowProperties
 from pathlib import Path
-from pydantic import AnyUrl
 from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeoJSON
 
 
@@ -31,7 +30,7 @@ def execute(source: str, record_geojson: RecordGeoJSON, project: str, output: Pa
             title="Workflows",
             hreflang="en-US",
             created=None,
-            updated=None
+            updated=None,
         )
     )
     record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
@@ -62,8 +61,11 @@ def execute(source: str, record_geojson: RecordGeoJSON, project: str, output: Pa
         WorkflowProperties,
     )
     workflow_properties.osc_project = project
+    workflow_properties.osc_status = OscStatus.COMPLETED
     record_geojson.properties = workflow_properties
 
     logger.success(f"OGCP API Records enriched")
 
-    save_record_geojson(record_geojson, Path(output, f"workflows/{record_geojson.id}/record.json"))
+    save_record_geojson(
+        record_geojson, Path(output, f"workflows/{record_geojson.id}/record.json")
+    )

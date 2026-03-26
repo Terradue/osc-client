@@ -31,7 +31,7 @@ dependencies = [
   "ogc-api-processes-client @ git+https://github.com/EOEPCA/ogc-api-processes-client.git@refactoring",
   "pydantic==2.12.5",
   "session-adapters==0.2.0",
-  "transpiler-mate==0.36.0",
+  "transpiler-mate==0.37.0",
   "pystac==1.14.3"
 ]
 

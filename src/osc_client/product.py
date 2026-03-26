@@ -52,7 +52,7 @@ def execute(
             title="Products",
             hreflang="en-US",
             created=None,
-            updated=None
+            updated=None,
         )
     )
     record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
@@ -71,7 +71,9 @@ def execute(
         ogc_api_processes_endpoint, authorization_token
     )
 
-    status_info: StatusInfo = retrieve_status_info(api_client=api_client, job_id=record_geojson.id)
+    status_info: StatusInfo = retrieve_status_info(
+        api_client=api_client, job_id=record_geojson.id
+    )
 
     result_api: ResultApi = ResultApi(api_client)
 

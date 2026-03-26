@@ -159,7 +159,7 @@ def load_record_geojson(source: str) -> RecordGeoJSON:
                 title="Open Science Catalog",
                 hreflang="en-US",
                 created=None,
-                updated=None
+                updated=None,
             )
         )
 
@@ -193,11 +193,11 @@ def save_record_geojson(record_geojson: RecordGeoJSON, output: Path):
             indent=2,
         )
 
-    logger.success(f"OGC API Records 'Experiment' serialized to {output.absolute()}.")
+    logger.success(f"OGC API Records serialized to {output.absolute()}.")
 
     catalog_file = Path(output.parent.parent, "catalog.json")
 
-    if catalog_file.exists:
+    if catalog_file.exists():
         logger.info(f"Updating STAC Catalog from {output.absolute()}...")
 
         href: str = f"./{record_geojson.id}/record.json"
@@ -206,10 +206,12 @@ def save_record_geojson(record_geojson: RecordGeoJSON, output: Path):
 
         # Check whether the same rel + href is already present
         for link in catalog.links:
-            if  link.get_href() == href:
-                logger.info(f"Link {href} already present in {output.absolute()}, update is not required.")
+            if link.get_href() == href:
+                logger.info(
+                    f"Link {href} already present in {output.absolute()}, update is not required."
+                )
                 return
-            
+
         catalog.add_link(
             PystacLink(
                 rel="item",
@@ -223,8 +225,9 @@ def save_record_geojson(record_geojson: RecordGeoJSON, output: Path):
         catalog.save_object(dest_href=catalog_file.absolute().as_posix())
         logger.success(f"STAC Catalog successfully saved to {catalog_file.absolute()}.")
     else:
-        logger.warning(f"Catalog file {catalog_file.absolute()} not found, skipping the update")
-
+        logger.warning(
+            f"Catalog file {catalog_file.absolute()} not found, skipping the update"
+        )
 
 
 def serialize_yaml(data: Any, target_file: Path):

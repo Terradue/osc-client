@@ -20,8 +20,17 @@ $defs:
   WorkflowProperties:
     type: object
     properties:
+      'osc:type':
+        type: string
+        default: workflow
       'osc:project':
         type: string
+      'osc:status':
+        type: string
+        enum:
+          - planned
+          - ongoing
+          - completed
 
   ExperimentProperties:
     type: object
