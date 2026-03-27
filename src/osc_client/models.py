@@ -43,6 +43,7 @@ class WorkflowProperties(RecordCommonProperties):
 
 
 class ExperimentProperties(RecordCommonProperties):
+    osc_project: Optional[str] = Field(None, alias="osc:project")
     osc_workflow: Optional[str] = Field(None, alias="osc:workflow")
     osc_prov_generated_by: Optional[str] = Field(None, alias="osc-prov:generatedBy")
     osc_prov_started_at_time: Optional[datetime] = Field(

@@ -30,36 +30,38 @@ import click
     "--id", type=click.STRING, required=True, help="The OGC API Processes Job ID."
 )
 @click.option(
+    "--project-id",
+    type=click.STRING,
+    required=True,
+    help="The referencing OGC API Records workflow URL.",
+)
+@click.option(
     "--output",
     type=click.Path(path_type=Path),
     required=True,
     help="The output directory path",
 )
 @click.pass_context
-def main(ctx, source: str, id: str, output: Path):
+def main(ctx, source: str, id: str, project_id: str, output: Path):
     ctx.ensure_object(dict)
     ctx.obj["source"] = source
 
-    record_geojson: RecordGeoJSON = load_record_geojson(source)
+    record_geojson: RecordGeoJSON = load_record_geojson(source, project_id)
     record_geojson.id = id
     ctx.obj["record_geojson"] = record_geojson
 
+    ctx.obj["project-id"] = project_id
     ctx.obj["output"] = output
 
 
 @main.command(context_settings={"show_default": True})
 @click.pass_context
-@click.option(
-    "--project",
-    type=click.STRING,
-    required=True,
-    help="The referencing OGC API Records workflow URL.",
-)
-def workflow(ctx, project: str):
+def workflow(ctx):
     source: str = ctx.obj["source"]
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
+    project_id: str = ctx.obj["project-id"]
     output: Path = ctx.obj["output"]
-    execute_workflow(source, record_geojson, project, output)
+    execute_workflow(source, record_geojson, project_id, output)
 
 
 @main.command(context_settings={"show_default": True})
@@ -90,8 +92,10 @@ def experiment(
     authorization_token: str,
 ):
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
+    project_id: str = ctx.obj["project-id"]
     output: Path = ctx.obj["output"]
     execute_experiment(
+        project_id=project_id,
         workflow_id=workflow_id,
         record_geojson=record_geojson,
         ogc_api_processes_endpoint=ogc_api_processes_endpoint,
@@ -127,13 +131,13 @@ def products(
     ogc_api_processes_endpoint: str,
     authorization_token: str,
 ):
-    source: str = ctx.obj["source"]
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
+    project_id: str = ctx.obj["project-id"]
     output: Path = ctx.obj["output"]
     execute_product(
-        source,
         ogc_api_processes_endpoint,
         record_geojson,
+        project_id,
         experiment_id,
         output,
         authorization_token,

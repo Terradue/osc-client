@@ -24,12 +24,11 @@ from osc_client import (
 from ogc_api_processes_client.models.status_info import StatusInfo
 from osc_client.models import ExperimentProperties
 from pathlib import Path
-from pydantic import AnyUrl
-from transpiler_mate.ogcapi_records import _to_datetime
 from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeoJSON
 
 
 def execute(
+    project_id: str,
     workflow_id: str,
     record_geojson: RecordGeoJSON,
     ogc_api_processes_endpoint: str,
@@ -47,17 +46,6 @@ def execute(
             hreflang="en-US",
             created=None,
             updated=None,
-        )
-    )
-    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
-        Link(
-            href=f"../../workflows/{workflow_id}/record.json",
-            hreflang="en-US",
-            rel="related",
-            type="application/json",
-            title=record_geojson.properties.title,
-            created=record_geojson.properties.created,
-            updated=record_geojson.properties.created,
         )
     )
 
@@ -82,8 +70,8 @@ def execute(
             rel="input",
             type="application/yaml",
             title="Input parameters",
-            created=_to_datetime(datetime.now()),
-            updated=_to_datetime(datetime.now()),
+            created=status_info.started,
+            updated=status_info.started,
         )
     )
 
@@ -96,9 +84,10 @@ def execute(
         record_geojson.properties,
         ExperimentProperties,
     )
+    experiment_properties.osc_project = project_id
     experiment_properties.osc_workflow = workflow_id
     experiment_properties.osc_prov_described_by_workflow = workflow_id
-    experiment_properties.osc_prov_generated = "TODO"
+    # experiment_properties.osc_prov_generated = "TODO"
     experiment_properties.osc_prov_generated_by = "osc-client"
     experiment_properties.osc_prov_started_at_time = status_info.started
     experiment_properties.osc_prov_ended_at_time = status_info.finished

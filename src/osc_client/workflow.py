@@ -19,7 +19,7 @@ from pathlib import Path
 from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeoJSON
 
 
-def execute(source: str, record_geojson: RecordGeoJSON, project: str, output: Path):
+def execute(source: str, record_geojson: RecordGeoJSON, project_id: str, output: Path):
     logger.debug(f"Enriching OGCP API Records...")
 
     record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
@@ -61,7 +61,7 @@ def execute(source: str, record_geojson: RecordGeoJSON, project: str, output: Pa
         record_geojson.properties,
         WorkflowProperties,
     )
-    workflow_properties.osc_project = project
+    workflow_properties.osc_project = project_id
     workflow_properties.osc_status = OscStatus.COMPLETED
     record_geojson.properties = workflow_properties
 

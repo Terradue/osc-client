@@ -35,6 +35,8 @@ $defs:
   ExperimentProperties:
     type: object
     properties:
+      'osc:project':
+        type: string
       'osc:workflow':
         type: string
       'osc-prov:generatedBy':

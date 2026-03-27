@@ -43,13 +43,21 @@ from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordGeoJSON
 
 
 def execute(
-    source: str,
     ogc_api_processes_endpoint: str,
     record_geojson: RecordGeoJSON,
+    project_id: str,
     experiment_id: str,
     output: Path,
     authorization_token: str | None,
 ):
+    api_client: ApiClient = create_client(
+        ogc_api_processes_endpoint, authorization_token
+    )
+
+    status_info: StatusInfo = retrieve_status_info(
+        api_client=api_client, job_id=record_geojson.id
+    )
+
     logger.debug(f"Enriching STAC Collection...")
     target_file = Path(output, f"products/{record_geojson.id}/collection.json")
 
@@ -62,7 +70,7 @@ def execute(
         extent=Extent(
             spatial=SpatialExtent([[-180.0, -90.0, 180.0, 90.0]]),
             temporal=TemporalExtent(
-                [[record_geojson.properties.created, record_geojson.properties.created]]
+                [[status_info.started, status_info.finished]]
             ),
         ),
         license=record_geojson.properties.license
@@ -89,22 +97,6 @@ def execute(
             media_type="application/json",
             title="Products",
         )
-    )
-    collection.add_link(
-        Link(
-            target=f"../../experiments/{experiment_id}/record.json",
-            rel="related",
-            media_type="application/json",
-            title=record_geojson.properties.title,
-        )
-    )
-
-    api_client: ApiClient = create_client(
-        ogc_api_processes_endpoint, authorization_token
-    )
-
-    status_info: StatusInfo = retrieve_status_info(
-        api_client=api_client, job_id=record_geojson.id
     )
 
     result_api: ResultApi = ResultApi(api_client)
@@ -137,20 +129,23 @@ def execute(
 
         serialize_yaml(response_data.json(), outputs_file)
 
-        collection.add_asset(
-            "output",
-            Asset(
-                href=f"./{outputs_file.name}",
+        collection.add_link(
+            Link(
+                rel="output",
+                target=f"./{outputs_file.name}",
                 title="Output parameter",
                 media_type="application/yaml",
-                description=f"{record_geojson.id} Outputs",
-            ),
+            )
         )
 
     osc_ext: OscExtension = OscExtension.ext(collection, add_if_missing=True)
+    osc_ext.project = project_id
     osc_ext.experiment = experiment_id
     osc_ext.osc_type = OscType.PRODUCT
     osc_ext.status = OscStatus.COMPLETED
+
+    creation_date: str = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+    collection.extra_fields.update({"created": creation_date, "updated": creation_date})
 
     logger.success(f"STAC Collection enriched")
 

@@ -75,7 +75,7 @@ def retrieve_status_info(api_client: ApiClient, job_id: str) -> StatusInfo:
     return status_info
 
 
-def load_record_geojson(source: str) -> RecordGeoJSON:
+def load_record_geojson(source: str, project_id: str) -> RecordGeoJSON:
     session: Session = Session()
 
     def mount_session(scheme: str, adapter: BaseAdapter):
@@ -151,6 +151,17 @@ def load_record_geojson(source: str) -> RecordGeoJSON:
         if not record_geojson.links:
             record_geojson.links = []
 
+        record_geojson.links.append(
+            Link(
+                rel="related",
+                href=f"../../projects/{project_id}/collection.json",
+                type="application/json",
+                title=f"Project: {project_id}",
+                hreflang="en-US",
+                created=None,
+                updated=None,
+            )
+        )
         record_geojson.links.append(
             Link(
                 rel="root",
