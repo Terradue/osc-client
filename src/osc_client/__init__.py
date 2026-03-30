@@ -33,7 +33,12 @@ from typing import Any, Mapping, TypeVar
 from transpiler_mate.metadata import MetadataManager
 from transpiler_mate.metadata.software_application_models import SoftwareApplication
 from transpiler_mate.ogcapi_records import OgcRecordsTranspiler
-from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeoJSON
+from transpiler_mate.ogcapi_records.ogcapi_records_models import (
+    Coordinate,
+    Link,
+    MultipointGeoJSON,
+    RecordGeoJSON,
+)
 from typing import Any, Mapping
 
 import yaml
@@ -75,7 +80,9 @@ def retrieve_status_info(api_client: ApiClient, job_id: str) -> StatusInfo:
     return status_info
 
 
-def load_record_geojson(source: str, project_id: str) -> RecordGeoJSON:
+def load_record_geojson(
+    source: str, project_id: str, project_name: str
+) -> RecordGeoJSON:
     session: Session = Session()
 
     def mount_session(scheme: str, adapter: BaseAdapter):
@@ -148,6 +155,21 @@ def load_record_geojson(source: str, project_id: str) -> RecordGeoJSON:
             obj=data, by_alias=True
         )
 
+        record_geojson.geometry = MultipointGeoJSON(
+            coordinates=[Coordinate([-180.0, -90.0, 180.0, 90.0])],
+        )
+
+        if record_geojson.properties.language:
+            record_geojson.properties.language.alternate = (
+                record_geojson.properties.language.name
+            )
+
+            record_geojson.properties.languages = [record_geojson.properties.language]
+
+        if record_geojson.properties.resource_languages:
+            for resource_language in record_geojson.properties.resource_languages:
+                resource_language.alternate = resource_language.name
+
         if not record_geojson.links:
             record_geojson.links = []
 
@@ -156,7 +178,7 @@ def load_record_geojson(source: str, project_id: str) -> RecordGeoJSON:
                 rel="related",
                 href=f"../../projects/{project_id}/collection.json",
                 type="application/json",
-                title=f"Project: {project_id}",
+                title=f"Project: {project_name}",
                 hreflang="en-US",
                 created=None,
                 updated=None,

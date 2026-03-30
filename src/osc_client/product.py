@@ -20,16 +20,15 @@ from ogc_api_processes_client.models.inline_or_ref_data import InlineOrRefData
 from ogc_api_processes_client.models.link import Link as OgcApiProcessesLink
 from ogc_api_processes_client.models.status_info import StatusInfo
 from osc_client import (
-    cast_model,
     create_client,
     retrieve_status_info,
     dump_data,
     serialize_yaml,
 )
 from osc_client.osc_extension import OscExtension, OscStatus, OscType
+from osc_client.themes_extension import ThemeConcept, Theme, ThemesExtension
 from pathlib import Path
 from pystac import (
-    Asset,
     Collection,
     Extent,
     Link,
@@ -69,9 +68,7 @@ def execute(
         else f"{record_geojson.id} Product",
         extent=Extent(
             spatial=SpatialExtent([[-180.0, -90.0, 180.0, 90.0]]),
-            temporal=TemporalExtent(
-                [[status_info.started, status_info.finished]]
-            ),
+            temporal=TemporalExtent([[status_info.started, status_info.finished]]),
         ),
         license=record_geojson.properties.license
         if record_geojson.properties.license
@@ -137,6 +134,18 @@ def execute(
                 media_type="application/yaml",
             )
         )
+
+    if record_geojson.properties.themes:
+        themes_ext: ThemesExtension = ThemesExtension.ext(collection, add_if_missing=True)
+        themes_ext.themes = [Theme(
+            scheme=original_theme.scheme,
+            concepts=[ThemeConcept(
+                id=original_contept.id,
+                title=original_contept.title,
+                description=original_contept.description,
+                url=str(original_contept.url) if original_contept.url else None
+            ) for original_contept in original_theme.concepts]
+        ) for original_theme in record_geojson.properties.themes]
 
     osc_ext: OscExtension = OscExtension.ext(collection, add_if_missing=True)
     osc_ext.project = project_id

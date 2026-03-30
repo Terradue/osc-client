@@ -74,6 +74,28 @@ def execute(
             updated=status_info.started,
         )
     )
+    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
+        Link(
+            href="./environment.yaml",
+            hreflang="en-US",
+            rel="environment",
+            type="application/yaml",
+            title="Execution environment",
+            created=status_info.started,
+            updated=status_info.started,
+        )
+    )
+    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
+        Link(
+            href=f"../../workflows/{workflow_id}/record.json",
+            hreflang="en-US",
+            rel="related",
+            type="application/json",
+            title=f"Workflow: {record_geojson.properties.title}",
+            created=status_info.started,
+            updated=status_info.started,
+        )
+    )
 
     logger.success(
         f"OGC API Records 'Experiment' inputs saved to {input_files.absolute()}"

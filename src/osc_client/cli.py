@@ -33,7 +33,13 @@ import click
     "--project-id",
     type=click.STRING,
     required=True,
-    help="The referencing OGC API Records workflow URL.",
+    help="The referencing Open Science Catalog project ID.",
+)
+@click.option(
+    "--project-name",
+    type=click.STRING,
+    required=True,
+    help="The referencing Open Science Catalog project Name.",
 )
 @click.option(
     "--output",
@@ -42,11 +48,13 @@ import click
     help="The output directory path",
 )
 @click.pass_context
-def main(ctx, source: str, id: str, project_id: str, output: Path):
+def main(ctx, source: str, id: str, project_id: str, project_name: str, output: Path):
     ctx.ensure_object(dict)
     ctx.obj["source"] = source
 
-    record_geojson: RecordGeoJSON = load_record_geojson(source, project_id)
+    record_geojson: RecordGeoJSON = load_record_geojson(
+        source, project_id, project_name
+    )
     record_geojson.id = id
     ctx.obj["record_geojson"] = record_geojson
 
