@@ -44,12 +44,14 @@ def test_main_loads_context(monkeypatch, tmp_path, osc_modules) -> None:
     monkeypatch.setattr(
         cli,
         "execute_workflow",
-        lambda source, ogc_api_processes_endpoint, record_geojson, project_id, output: called.update(
-            source=source,
-            ogc_api_processes_endpoint=ogc_api_processes_endpoint,
-            record_geojson=record_geojson,
-            project_id=project_id,
-            output=output,
+        lambda source, ogc_api_processes_endpoint, record_geojson, project_id, output: (
+            called.update(
+                source=source,
+                ogc_api_processes_endpoint=ogc_api_processes_endpoint,
+                record_geojson=record_geojson,
+                project_id=project_id,
+                output=output,
+            )
         ),
     )
 
