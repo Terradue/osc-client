@@ -138,9 +138,9 @@ def _install_ogc_api_processes_stubs() -> None:
     sys.modules["ogc_api_processes_client.api.result_api"] = result_api_mod
     sys.modules["ogc_api_processes_client.models.status_code"] = status_code_mod
     sys.modules["ogc_api_processes_client.models.status_info"] = status_info_mod
-    sys.modules[
-        "ogc_api_processes_client.models.inline_or_ref_data"
-    ] = inline_or_ref_mod
+    sys.modules["ogc_api_processes_client.models.inline_or_ref_data"] = (
+        inline_or_ref_mod
+    )
     sys.modules["ogc_api_processes_client.models.link"] = link_mod
 
 

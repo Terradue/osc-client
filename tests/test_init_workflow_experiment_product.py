@@ -130,7 +130,9 @@ def test_dump_data_writes_json_and_updates_catalog(tmp_path, osc_modules) -> Non
     assert "./abc/record.json" in hrefs
 
 
-def test_dump_data_does_not_duplicate_existing_catalog_link(tmp_path, osc_modules) -> None:
+def test_dump_data_does_not_duplicate_existing_catalog_link(
+    tmp_path, osc_modules
+) -> None:
     package = osc_modules["package"]
     catalog_path = tmp_path / "records" / "catalog.json"
     catalog_path.parent.mkdir(parents=True, exist_ok=True)
@@ -156,7 +158,9 @@ def test_dump_data_does_not_duplicate_existing_catalog_link(tmp_path, osc_module
     assert hrefs.count("./abc/record.json") == 1
 
 
-def test_load_record_geojson_enriches_transpiled_record(monkeypatch, osc_modules) -> None:
+def test_load_record_geojson_enriches_transpiled_record(
+    monkeypatch, osc_modules
+) -> None:
     package = osc_modules["package"]
 
     class FakeResponse:
@@ -216,12 +220,16 @@ def test_load_record_geojson_enriches_transpiled_record(monkeypatch, osc_modules
     assert loaded.links[-1].href == "../../catalog.json"
 
 
-def test_workflow_execute_enriches_and_serializes(monkeypatch, tmp_path, osc_modules) -> None:
+def test_workflow_execute_enriches_and_serializes(
+    monkeypatch, tmp_path, osc_modules
+) -> None:
     workflow = osc_modules["workflow"]
     record = make_record("workflow-1", "Workflow")
     dumped = {}
 
-    monkeypatch.setattr(workflow, "dump_data", lambda data, path: dumped.update(data=data, path=path))
+    monkeypatch.setattr(
+        workflow, "dump_data", lambda data, path: dumped.update(data=data, path=path)
+    )
 
     workflow.execute("https://example.com/workflow.cwl", record, "project-1", tmp_path)
 
@@ -232,7 +240,9 @@ def test_workflow_execute_enriches_and_serializes(monkeypatch, tmp_path, osc_mod
     assert dumped["data"]["properties"]["osc:project"] == "project-1"
 
 
-def test_experiment_execute_enriches_and_serializes(monkeypatch, tmp_path, osc_modules) -> None:
+def test_experiment_execute_enriches_and_serializes(
+    monkeypatch, tmp_path, osc_modules
+) -> None:
     experiment = osc_modules["experiment"]
     package = osc_modules["package"]
     started = datetime(2026, 1, 1, tzinfo=timezone.utc)
@@ -241,7 +251,9 @@ def test_experiment_execute_enriches_and_serializes(monkeypatch, tmp_path, osc_m
     dumped = {}
     serialized = {}
 
-    monkeypatch.setattr(experiment, "create_client", lambda endpoint, token: ("client", endpoint, token))
+    monkeypatch.setattr(
+        experiment, "create_client", lambda endpoint, token: ("client", endpoint, token)
+    )
     monkeypatch.setattr(
         experiment,
         "retrieve_status_info",
@@ -284,17 +296,28 @@ def test_experiment_execute_enriches_and_serializes(monkeypatch, tmp_path, osc_m
     assert dumped["path"] == Path(tmp_path, "experiments/experiment-1/record.json")
 
 
-def test_product_execute_builds_collection_and_serializes(monkeypatch, tmp_path, osc_modules) -> None:
+def test_product_execute_builds_collection_and_serializes(
+    monkeypatch, tmp_path, osc_modules
+) -> None:
     product = osc_modules["product"]
     package = osc_modules["package"]
     started = datetime(2026, 1, 1, tzinfo=timezone.utc)
     finished = datetime(2026, 1, 2, tzinfo=timezone.utc)
     record = make_record("product-1", "Product")
-    record.links = [Link(rel="about", href="https://example.com/about", type="text/html", title="About")]
+    record.links = [
+        Link(
+            rel="about",
+            href="https://example.com/about",
+            type="text/html",
+            title="About",
+        )
+    ]
     dumped = {}
     serialized = {}
 
-    monkeypatch.setattr(product, "create_client", lambda endpoint, token: ("client", endpoint, token))
+    monkeypatch.setattr(
+        product, "create_client", lambda endpoint, token: ("client", endpoint, token)
+    )
     monkeypatch.setattr(
         product,
         "retrieve_status_info",
@@ -327,6 +350,7 @@ def test_product_execute_builds_collection_and_serializes(monkeypatch, tmp_path,
         "dump_data",
         lambda data, path, rel=None: dumped.update(data=data, path=path, rel=rel),
     )
+
     class FakeDatetime:
         @classmethod
         def now(cls):

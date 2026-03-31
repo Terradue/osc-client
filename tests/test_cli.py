@@ -18,7 +18,10 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
-from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordCommonProperties, RecordGeoJSON
+from transpiler_mate.ogcapi_records.ogcapi_records_models import (
+    RecordCommonProperties,
+    RecordGeoJSON,
+)
 
 
 def make_record(record_id: str) -> RecordGeoJSON:
@@ -35,7 +38,9 @@ def test_main_loads_context(monkeypatch, tmp_path, osc_modules) -> None:
     record = make_record("original-id")
     called = {}
 
-    monkeypatch.setattr(cli, "load_record_geojson", lambda source, project_id, project_name: record)
+    monkeypatch.setattr(
+        cli, "load_record_geojson", lambda source, project_id, project_name: record
+    )
     monkeypatch.setattr(
         cli,
         "execute_workflow",
@@ -76,7 +81,9 @@ def test_experiment_command_dispatches(monkeypatch, tmp_path, osc_modules) -> No
     record = make_record("experiment-1")
     called = {}
 
-    monkeypatch.setattr(cli, "load_record_geojson", lambda source, project_id, project_name: record)
+    monkeypatch.setattr(
+        cli, "load_record_geojson", lambda source, project_id, project_name: record
+    )
     monkeypatch.setattr(
         cli,
         "execute_experiment",
@@ -119,7 +126,9 @@ def test_products_command_dispatches(monkeypatch, tmp_path, osc_modules) -> None
     record = make_record("product-1")
     called = {}
 
-    monkeypatch.setattr(cli, "load_record_geojson", lambda source, project_id, project_name: record)
+    monkeypatch.setattr(
+        cli, "load_record_geojson", lambda source, project_id, project_name: record
+    )
     monkeypatch.setattr(
         cli,
         "execute_product",

@@ -87,26 +87,28 @@ def execute(
                 )
             )
 
-    collection.add_links([
-        Link(
-            rel=RelType.PARENT,
-            target="../catalog.json",
-            media_type="application/json",
-            title="Products",
-        ),
-        Link(
-            rel="related",
-            target=f"../../experiments/{record_geojson.id}/record.json",
-            media_type="application/json",
-            title=f"Experiment: {record_geojson.properties.title}",
-        ),
-        Link(
-            rel="related",
-            target="../../themes/land/catalog.json",
-            media_type="application/json",
-            title="Theme: Land",
-        )
-    ])
+    collection.add_links(
+        [
+            Link(
+                rel=RelType.PARENT,
+                target="../catalog.json",
+                media_type="application/json",
+                title="Products",
+            ),
+            Link(
+                rel="related",
+                target=f"../../experiments/{record_geojson.id}/record.json",
+                media_type="application/json",
+                title=f"Experiment: {record_geojson.properties.title}",
+            ),
+            Link(
+                rel="related",
+                target="../../themes/land/catalog.json",
+                media_type="application/json",
+                title="Theme: Land",
+            ),
+        ]
+    )
 
     result_api: ResultApi = ResultApi(api_client)
 
@@ -135,11 +137,7 @@ def execute(
     themes_ext.themes = [
         Theme(
             scheme="https://github.com/stac-extensions/osc#theme",
-            concepts=[
-                ThemeConcept(
-                    id="land"
-                )
-            ]
+            concepts=[ThemeConcept(id="land")],
         )
     ]
 
