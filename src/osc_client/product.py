@@ -87,14 +87,26 @@ def execute(
                 )
             )
 
-    collection.add_link(
+    collection.add_links([
         Link(
             rel=RelType.PARENT,
             target="../catalog.json",
             media_type="application/json",
             title="Products",
+        ),
+        Link(
+            rel="related",
+            target=f"../../experiments/{record_geojson.id}/record.json",
+            media_type="application/json",
+            title=f"Experiment: {record_geojson.properties.title}",
+        ),
+        Link(
+            rel="related",
+            target="../../themes/land/catalog.json",
+            media_type="application/json",
+            title="Theme: Land",
         )
-    )
+    ])
 
     result_api: ResultApi = ResultApi(api_client)
 
@@ -135,23 +147,23 @@ def execute(
             )
         )
 
-    if record_geojson.properties.themes:
-        themes_ext: ThemesExtension = ThemesExtension.ext(collection, add_if_missing=True)
-        themes_ext.themes = [Theme(
-            scheme=original_theme.scheme,
-            concepts=[ThemeConcept(
-                id=original_contept.id,
-                title=original_contept.title,
-                description=original_contept.description,
-                url=str(original_contept.url) if original_contept.url else None
-            ) for original_contept in original_theme.concepts]
-        ) for original_theme in record_geojson.properties.themes]
-
     osc_ext: OscExtension = OscExtension.ext(collection, add_if_missing=True)
     osc_ext.project = project_id
     osc_ext.experiment = experiment_id
     osc_ext.osc_type = OscType.PRODUCT
     osc_ext.status = OscStatus.COMPLETED
+
+    themes_ext: ThemesExtension = ThemesExtension.ext(collection, add_if_missing=True)
+    themes_ext.themes = [
+        Theme(
+            scheme="https://github.com/stac-extensions/osc#theme",
+            concepts=[
+                ThemeConcept(
+                    id="land"
+                )
+            ]
+        )
+    ]
 
     creation_date: str = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
     collection.extra_fields.update({"created": creation_date, "updated": creation_date})
