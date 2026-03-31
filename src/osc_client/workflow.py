@@ -20,7 +20,7 @@ from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeo
 
 
 def execute(source: str, record_geojson: RecordGeoJSON, project_id: str, output: Path):
-    logger.debug(f"Enriching OGCP API Records...")
+    logger.debug("Enriching OGCP API Records...")
 
     record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
         Link(
@@ -65,7 +65,7 @@ def execute(source: str, record_geojson: RecordGeoJSON, project_id: str, output:
     workflow_properties.osc_status = OscStatus.COMPLETED
     record_geojson.properties = workflow_properties
 
-    logger.success(f"OGCP API Records enriched")
+    logger.success("OGCP API Records enriched")
 
     dump_data(
         record_geojson.model_dump(

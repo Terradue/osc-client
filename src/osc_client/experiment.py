@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
 from loguru import logger
 from osc_client import (
     cast_model,
@@ -35,7 +34,7 @@ def execute(
     output: Path,
     authorization_token: str,
 ):
-    logger.debug(f"Enriching OGCP API Records...")
+    logger.debug("Enriching OGCP API Records...")
 
     record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
         Link(
@@ -116,7 +115,7 @@ def execute(
 
     record_geojson.properties = experiment_properties
 
-    logger.success(f"OGCP API Records enriched")
+    logger.success("OGCP API Records enriched")
 
     dump_data(
         record_geojson.model_dump(

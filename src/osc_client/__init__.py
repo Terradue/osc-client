@@ -39,7 +39,6 @@ from transpiler_mate.ogcapi_records.ogcapi_records_models import (
     MultipointGeoJSON,
     RecordGeoJSON,
 )
-from typing import Any, Mapping
 
 import yaml
 import json
@@ -145,7 +144,7 @@ def load_record_geojson(
             f"Schema.org metadata read from CWL document on {tmp_path.absolute()}."
         )
 
-        logger.debug(f"Transpiling Schema.org metadata to OGCP API Records...")
+        logger.debug("Transpiling Schema.org metadata to OGCP API Records...")
 
         transpiler: OgcRecordsTranspiler = OgcRecordsTranspiler()
 
@@ -196,7 +195,7 @@ def load_record_geojson(
             )
         )
 
-        logger.success(f"Schema.org metadata transpiled to OGCP API Records.")
+        logger.success("Schema.org metadata transpiled to OGCP API Records.")
 
         return record_geojson
     finally:

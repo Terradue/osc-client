@@ -19,7 +19,6 @@ from osc_client.workflow import execute as execute_workflow
 from pathlib import Path
 from transpiler_mate.cli import _track
 from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordGeoJSON
-from typing import Dict
 
 import click
 

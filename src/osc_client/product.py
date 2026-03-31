@@ -16,8 +16,6 @@ from datetime import datetime
 from loguru import logger
 from ogc_api_processes_client.api_client import ApiClient
 from ogc_api_processes_client.api.result_api import ResultApi
-from ogc_api_processes_client.models.inline_or_ref_data import InlineOrRefData
-from ogc_api_processes_client.models.link import Link as OgcApiProcessesLink
 from ogc_api_processes_client.models.status_info import StatusInfo
 from osc_client import (
     create_client,
@@ -36,8 +34,6 @@ from pystac import (
     SpatialExtent,
     TemporalExtent,
 )
-from typing import Dict
-from transpiler_mate.ogcapi_records import _to_datetime
 from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordGeoJSON
 
 
@@ -57,7 +53,7 @@ def execute(
         api_client=api_client, job_id=record_geojson.id
     )
 
-    logger.debug(f"Enriching STAC Collection...")
+    logger.debug("Enriching STAC Collection...")
     target_file = Path(output, f"products/{record_geojson.id}/collection.json")
 
     collection: Collection = Collection(
@@ -144,6 +140,6 @@ def execute(
     creation_date: str = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
     collection.extra_fields.update({"created": creation_date, "updated": creation_date})
 
-    logger.success(f"STAC Collection enriched")
+    logger.success("STAC Collection enriched")
 
     dump_data(collection.to_dict(), target_file, RelType.CHILD)
