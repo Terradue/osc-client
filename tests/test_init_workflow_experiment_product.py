@@ -231,11 +231,18 @@ def test_workflow_execute_enriches_and_serializes(
         workflow, "dump_data", lambda data, path: dumped.update(data=data, path=path)
     )
 
-    workflow.execute("https://example.com/workflow.cwl", record, "project-1", tmp_path)
+    workflow.execute(
+        "https://example.com/workflow.cwl",
+        "https://example.com/processes",
+        record,
+        "project-1",
+        tmp_path,
+    )
 
     assert record.properties.osc_project == "project-1"
     assert record.properties.osc_status == workflow.OscStatus.COMPLETED
     assert any(link.rel == "application" for link in record.links)
+    assert any(link.rel == "via" for link in record.links)
     assert dumped["path"] == Path(tmp_path, "workflows/workflow-1/record.json")
     assert dumped["data"]["properties"]["osc:project"] == "project-1"
 
