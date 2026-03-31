@@ -19,7 +19,13 @@ from pathlib import Path
 from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeoJSON
 
 
-def execute(source: str, record_geojson: RecordGeoJSON, project_id: str, output: Path):
+def execute(
+    source: str,
+    ogc_api_processes_endpoint: str,
+    record_geojson: RecordGeoJSON,
+    project_id: str,
+    output: Path,
+):
     logger.debug("Enriching OGCP API Records...")
 
     record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
@@ -51,6 +57,17 @@ def execute(source: str, record_geojson: RecordGeoJSON, project_id: str, output:
             rel="application-platform",
             type="text/html",
             title="cwltool",
+            created=None,
+            updated=None,
+        )
+    )
+    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
+        Link(
+            href=f"{ogc_api_processes_endpoint}/processes/{record_geojson.id}",
+            hreflang="en-US",
+            rel="via",
+            type="application/json",
+            title=f"OGC API Processes - Process: {record_geojson.id}",
             created=None,
             updated=None,
         )

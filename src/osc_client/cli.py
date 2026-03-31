@@ -41,13 +41,27 @@ import click
     help="The referencing Open Science Catalog project Name.",
 )
 @click.option(
+    "--ogc-api-processes-endpoint",
+    type=click.STRING,
+    required=True,
+    help="The referencing OGC API Processes service URL.",
+)
+@click.option(
     "--output",
     type=click.Path(path_type=Path),
     required=True,
     help="The output directory path",
 )
 @click.pass_context
-def main(ctx, source: str, id: str, project_id: str, project_name: str, output: Path):
+def main(
+    ctx,
+    source: str,
+    id: str,
+    project_id: str,
+    project_name: str,
+    ogc_api_processes_endpoint: str,
+    output: Path,
+):
     ctx.ensure_object(dict)
     ctx.obj["source"] = source
 
@@ -57,6 +71,7 @@ def main(ctx, source: str, id: str, project_id: str, project_name: str, output: 
     record_geojson.id = id
     ctx.obj["record_geojson"] = record_geojson
 
+    ctx.obj["ogc-api-processes-endpoint"] = ogc_api_processes_endpoint
     ctx.obj["project-id"] = project_id
     ctx.obj["output"] = output
 
@@ -65,10 +80,13 @@ def main(ctx, source: str, id: str, project_id: str, project_name: str, output: 
 @click.pass_context
 def workflow(ctx):
     source: str = ctx.obj["source"]
+    ogc_api_processes_endpoint = ctx.obj["ogc-api-processes-endpoint"]
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
     project_id: str = ctx.obj["project-id"]
     output: Path = ctx.obj["output"]
-    execute_workflow(source, record_geojson, project_id, output)
+    execute_workflow(
+        source, ogc_api_processes_endpoint, record_geojson, project_id, output
+    )
 
 
 @main.command(context_settings={"show_default": True})
@@ -80,12 +98,6 @@ def workflow(ctx):
     help="The referencing OGC API Records workflow URL.",
 )
 @click.option(
-    "--ogc-api-processes-endpoint",
-    type=click.STRING,
-    required=True,
-    help="The referencing OGC API Processes service URL.",
-)
-@click.option(
     "--authorization-token",
     type=click.STRING,
     required=False,
@@ -95,9 +107,9 @@ def workflow(ctx):
 def experiment(
     ctx,
     workflow_id: str,
-    ogc_api_processes_endpoint: str,
     authorization_token: str,
 ):
+    ogc_api_processes_endpoint = ctx.obj["ogc-api-processes-endpoint"]
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
     project_id: str = ctx.obj["project-id"]
     output: Path = ctx.obj["output"]
@@ -120,12 +132,6 @@ def experiment(
     help="The referencing OGC API Records workflow ID.",
 )
 @click.option(
-    "--ogc-api-processes-endpoint",
-    type=click.STRING,
-    required=True,
-    help="The referencing OGC API Processes service URL.",
-)
-@click.option(
     "--authorization-token",
     type=click.STRING,
     required=False,
@@ -135,9 +141,9 @@ def experiment(
 def products(
     ctx,
     experiment_id: str,
-    ogc_api_processes_endpoint: str,
     authorization_token: str,
 ):
+    ogc_api_processes_endpoint = ctx.obj["ogc-api-processes-endpoint"]
     record_geojson: RecordGeoJSON = ctx.obj["record_geojson"]
     project_id: str = ctx.obj["project-id"]
     output: Path = ctx.obj["output"]

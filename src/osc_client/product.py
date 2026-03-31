@@ -103,6 +103,12 @@ def execute(
                 media_type="application/json",
                 title="Theme: Land",
             ),
+            Link(
+                rel="via",
+                target=f"{ogc_api_processes_endpoint}/jobs/{record_geojson.id}/results",
+                media_type="application/json",
+                title=f"OGC API Processes - Job Results: {record_geojson.id}",
+            ),
         ]
     )
 

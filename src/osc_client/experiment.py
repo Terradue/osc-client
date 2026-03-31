@@ -47,6 +47,17 @@ def execute(
             updated=None,
         )
     )
+    record_geojson.links.append(  # type: ignore see osc_client.load_record_geojson
+        Link(
+            href=f"{ogc_api_processes_endpoint}/jobs/{record_geojson.id}",
+            hreflang="en-US",
+            rel="via",
+            type="application/json",
+            title=f"OGC API Processes - Job: {record_geojson.id}",
+            created=None,
+            updated=None,
+        )
+    )
 
     logger.debug("Reassembling OGC API Records 'Experiment' inputs...")
 
