@@ -1,0 +1,48 @@
+# Copyright 2026 Terradue
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '3'
+
+tasks:
+
+  test:
+    desc: Run tests
+    cmds:
+    - hatch run test:test-show-setup
+
+  check:
+    desc: Run code quality checks
+    cmds:
+    - hatch run dev:check
+
+  lint:
+    desc: Run linters
+    cmds:
+    - hatch run dev:lint
+
+  datamodel_codegen:
+    cmds:
+    - |
+      datamodel-codegen --input ./schemas/osc_ogcapi_records_models.yaml \
+                        --input-file-type jsonschema \
+                        --output-model-type pydantic_v2.BaseModel \
+                        --base-class transpiler_mate.ogcapi_records.ogcapi_records_models.RecordCommonProperties \
+                        # --additional-imports "pydantic.AliasChoices,typing.Any,transpiler_mate.TranspilerBaseModel" \
+                        --field-constraints \
+                        --use-schema-description \
+                        --collapse-root-models \
+                        --capitalise-enum-members \
+                        --use-one-literal-as-default \
+                        --snake-case-field \
+                        --output ./src/osc_client/models.py

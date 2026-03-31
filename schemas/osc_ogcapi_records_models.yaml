@@ -1,0 +1,79 @@
+# Copyright 2025 Terradue
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://schemas.opengis.net/ogcapi/records/part1/1.0/osc
+
+$defs:
+
+  WorkflowProperties:
+    type: object
+    properties:
+      'osc:type':
+        type: string
+        default: workflow
+      'osc:project':
+        type: string
+      'osc:status':
+        type: string
+        enum:
+          - planned
+          - ongoing
+          - completed
+
+  ExperimentProperties:
+    type: object
+    properties:
+      'osc:project':
+        type: string
+      'osc:workflow':
+        type: string
+      'osc-prov:generatedBy':
+        type: string
+      'osc-prov:startedAtTime':
+        type: string
+        format: date-time
+      'osc-prov:endedAtTime':
+        type: string
+        format: date-time
+      'osc-prov:generated':
+        type: string
+      'osc-prov:describedByWorkflow':
+        type: string
+
+  ProductProperties:
+    type: object
+    properties:
+      "osc:experiment":
+        type: string
+      "osc:status":
+        type: string
+      "osc:region":
+        type: string
+      "osc:type":
+        type: string
+      "osc:project":
+        type: string
+      "osc:missions":
+        type: string
+      "osc:variables":
+        type: string
+      "osc-prov:type":
+        type: string
+      "osc-prov:wasDerivedFrom":
+        type: string
+      "osc-prov:wasOutputFrom":
+        type: string
+      "osc-prov:describedByParameter":
+        type: string
