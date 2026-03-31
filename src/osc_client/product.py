@@ -110,42 +110,20 @@ def execute(
 
     result_api: ResultApi = ResultApi(api_client)
 
-    try:
-        results: Dict[str, InlineOrRefData] = result_api.get_result(
-            job_id=record_geojson.id,
+    response_data = result_api.get_result_without_preload_content(record_geojson.id)
+
+    outputs_file: Path = Path(target_file.parent, "output.yaml")
+
+    serialize_yaml(response_data.json(), outputs_file)
+
+    collection.add_link(
+        Link(
+            rel="output",
+            target=f"./{outputs_file.name}",
+            title="Output parameter",
+            media_type="application/yaml",
         )
-
-        for output_value in results.values():
-            logger.debug(f"{type(output)}: {output.__dict__}")
-
-            if isinstance(output_value, OgcApiProcessesLink):
-                collection.add_link(
-                    Link(
-                        target=output_value.href,
-                        rel=RelType.ITEM,
-                        media_type=output_value.type,
-                        title=output_value.title,
-                    )
-                )
-    except Exception as e:
-        logger.error(
-            f"An error occurred while retrieving results for {ogc_api_processes_endpoint}/jobs/{record_geojson.id}/results: {e}"
-        )
-
-        response_data = result_api.get_result_without_preload_content(record_geojson.id)
-
-        outputs_file: Path = Path(target_file.parent, "output.yaml")
-
-        serialize_yaml(response_data.json(), outputs_file)
-
-        collection.add_link(
-            Link(
-                rel="output",
-                target=f"./{outputs_file.name}",
-                title="Output parameter",
-                media_type="application/yaml",
-            )
-        )
+    )
 
     osc_ext: OscExtension = OscExtension.ext(collection, add_if_missing=True)
     osc_ext.project = project_id
