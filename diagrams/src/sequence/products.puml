@@ -1,0 +1,44 @@
+@startuml
+title Create the Products definition
+
+actor Operator as operator
+participant "Open Science Catalog\nClient" as oscc
+database "Application Packages Registry" as apr
+participant "OGC API Processes" as oap
+database "File System" as fs
+participant "Open Science Catalog" as osc
+
+operator ++
+fs ++
+oscc ++
+
+operator -> oscc : Configure Application Package
+operator -> oscc : Configure OGC API Records workflow
+operator -> oscc : Configure OGC API Processes entry point
+operator -> oscc : Configure OGC API Processes Job ID
+oscc -> apr ++ : Request CWL Workflow
+apr --> oscc -- : Provide the CWL Workflow
+
+oscc -> oscc : Transpile the Application Package\nto OGC API Records
+
+loop StatusInfo.status is "accepted" or "running"
+    oscc -> oap ++ : ""GET /jobs/{jobId}""
+    oap --> oscc -- : Provide Job StatusInfo
+end
+
+alt "succeeded" == StatusInfo.status
+    oscc -> oap ++ : ""GET /jobs/{jobId}/results""
+    oap --> oscc -- : Provide FeatureCollection response
+
+    loop FeatureCollection.features
+        oscc -> oscc : Attach ""link.rel = item"" link to the\nOGC API Records
+    end
+
+    oscc -> fs : Serialize ""products.json""
+    oscc -> osc ++ : Upload serialized ""products.json""
+    osc -> oscc -- : ACK
+else
+    oscc -> oscc : Manage failure
+end
+
+@enduml
