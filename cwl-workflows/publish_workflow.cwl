@@ -7,7 +7,7 @@ schemas:
 
 # The software itself
 
-s:name: OSC Client
+s:name: OSC Client - Publish `workflow`
 s:description: ESA Open Science Catalog Client
 s:dateCreated: '2026-05-12'
 s:license:
