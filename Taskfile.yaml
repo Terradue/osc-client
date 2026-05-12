@@ -14,35 +14,64 @@
 
 version: '3'
 
+includes:
+  json: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/json.yaml
+  quality: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/quality.yaml
+
 tasks:
-
-  test:
-    desc: Run tests
-    cmds:
-    - hatch run test:test-show-setup
-
-  check:
-    desc: Run code quality checks
-    cmds:
-    - hatch run dev:check
-
-  lint:
-    desc: Run linters
-    cmds:
-    - hatch run dev:lint
 
   datamodel_codegen:
     cmds:
+    - task: json:create_models
+      vars:
+        SCHEMA: './schemas/osc_ogcapi_records_models.yaml'
+        BASE_CLASS: 'transpiler_mate.ogcapi_records.ogcapi_records_models.RecordCommonProperties'
+        OUTPUT: './src/osc_client/models.py'
+
+  generate_workflow_doc:
+    internal: true
+    vars:
+      DOC_DIR: './docs/c4/components/workflow'
+      REPO_URL:
+        sh: git config --get remote.origin.url
+    cmds:
+    - mkdir -p {{.DOC_DIR}}
     - |
-      datamodel-codegen --input ./schemas/osc_ogcapi_records_models.yaml \
-                        --input-file-type jsonschema \
-                        --output-model-type pydantic_v2.BaseModel \
-                        --base-class transpiler_mate.ogcapi_records.ogcapi_records_models.RecordCommonProperties \
-                        # --additional-imports "pydantic.AliasChoices,typing.Any,transpiler_mate.TranspilerBaseModel" \
-                        --field-constraints \
-                        --use-schema-description \
-                        --collapse-root-models \
-                        --capitalise-enum-members \
-                        --use-one-literal-as-default \
-                        --snake-case-field \
-                        --output ./src/osc_client/models.py
+      uv run --no-cache --no-project --with transpiler-mate transpiler-mate markdown \
+        --workflow-id {{.WORKFLOW_ID}} \
+        --output {{.DOC_DIR}} \
+        --code-repository {{.REPO_URL}} \
+        ./cwl-workflows/{{.WORKFLOW_ID}}.cwl
+    - |
+      uv run --no-cache --no-project --with cwl2puml cwl2puml --workflow-id {{.WORKFLOW_ID}} \
+        --output {{.DOC_DIR}}/{{.WORKFLOW_ID}} \
+        --convert-image \
+        --image-format svg \
+        ./cwl-workflows/{{.WORKFLOW_ID}}.cwl
+    - rm -rf {{.DOC_DIR}}/{{.WORKFLOW_ID}}/*.puml
+
+  generate_workflows_doc:
+    desc: Generate markdown and workflow diagrams for FEM, FFM and FHM CWL workflow
+    vars:
+      WORKFLOWS:
+      - 'publish_workflow'
+      - 'publish_experiment_products'
+    cmds:
+    - for:
+        var: WORKFLOWS
+        as: WORKFLOW_ID
+      task: generate_workflow_doc
+      vars:
+        WORKFLOW_ID: '{{.WORKFLOW_ID}}'
+
+  serve_docs:
+    desc: Serve the MkDocs site locally
+    cmds:
+      - |
+        uv run \
+        --no-project \
+        --with mkdocs \
+        --with mkdocs-material \
+        --with mkdocs-mermaid2-plugin \
+        --with mkdocs-build-plantuml-plugin \
+        mkdocs serve

@@ -81,5 +81,8 @@ extra_javascript:
 nav:
 - Introduction: 'index.md'
 - cli.md
+- CWLs:
+  - Publish OSC Workflow: c4/components/workflow/publish_workflow.md
+  - Publish OSC Experiment and Product: c4/components/workflow/publish_experiment_products.md
 
 copyright: <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache%20License%202.0-blue"" alt="Apache License, Version 2.0" /></a>
