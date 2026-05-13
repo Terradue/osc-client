@@ -34,7 +34,7 @@ from pystac import (
     SpatialExtent,
     TemporalExtent,
 )
-from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordGeoJSON
+from transpiler_mate.ogcapi.records.ogcapi_records_models import RecordGeoJSON
 
 
 def execute(

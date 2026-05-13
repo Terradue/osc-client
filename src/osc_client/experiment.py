@@ -23,7 +23,7 @@ from osc_client import (
 from ogc_api_processes_client.models.status_info import StatusInfo
 from osc_client.models import ExperimentProperties
 from pathlib import Path
-from transpiler_mate.ogcapi_records.ogcapi_records_models import Link, RecordGeoJSON
+from transpiler_mate.ogcapi.records.ogcapi_records_models import Link, RecordGeoJSON
 
 
 def execute(

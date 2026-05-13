@@ -32,8 +32,8 @@ from tempfile import NamedTemporaryFile
 from typing import Any, Mapping, TypeVar
 from transpiler_mate.metadata import MetadataManager
 from transpiler_mate.metadata.software_application_models import SoftwareApplication
-from transpiler_mate.ogcapi_records import OgcRecordsTranspiler
-from transpiler_mate.ogcapi_records.ogcapi_records_models import (
+from transpiler_mate.ogcapi.records import OgcRecordsTranspiler
+from transpiler_mate.ogcapi.records.ogcapi_records_models import (
     Coordinate,
     Link,
     MultipointGeoJSON,

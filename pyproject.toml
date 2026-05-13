@@ -17,21 +17,21 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "click==8.3.1",
+  "click==8.3.3",
   "loguru==0.7.3",
   "ogc-api-processes-client @ git+https://github.com/EOEPCA/ogc-api-processes-client.git@refactoring",
   "pydantic==2.12.5",
-  "session-adapters==0.2.0",
-  "transpiler-mate==0.41.0",
+  "session-adapters==0.3.0",
+  "transpiler-mate==0.44.0",
   "pystac==1.14.3"
 ]
 
@@ -87,6 +87,9 @@ test = "pytest"
 test-q = "pytest -q"
 test-cov = "pytest --cov=opensearch_gateway"
 test-show-setup = "pytest --setup-show"
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
 [tool.hatch.envs.dev]
 description = "Development environment"

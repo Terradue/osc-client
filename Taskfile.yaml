@@ -25,7 +25,7 @@ tasks:
     - task: json:create_models
       vars:
         SCHEMA: './schemas/osc_ogcapi_records_models.yaml'
-        BASE_CLASS: 'transpiler_mate.ogcapi_records.ogcapi_records_models.RecordCommonProperties'
+        BASE_CLASS: 'transpiler_mate.ogcapi.records.ogcapi_records_models.RecordCommonProperties'
         OUTPUT: './src/osc_client/models.py'
 
   generate_workflow_doc:

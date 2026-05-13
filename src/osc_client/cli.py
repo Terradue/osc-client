@@ -17,8 +17,8 @@ from osc_client.experiment import execute as execute_experiment
 from osc_client.product import execute as execute_product
 from osc_client.workflow import execute as execute_workflow
 from pathlib import Path
-from transpiler_mate.cli import _track
-from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordGeoJSON
+from transpiler_mate.cli.cli import _track
+from transpiler_mate.ogcapi.records.ogcapi_records_models import RecordGeoJSON
 
 import click
 

@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 
 import pystac
 
-from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordCommonProperties
+from transpiler_mate.ogcapi.records.ogcapi_records_models import RecordCommonProperties
 
 
 def test_about_exposes_version(osc_modules) -> None:

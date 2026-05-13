@@ -23,7 +23,7 @@ from enum import Enum
 from typing import Any, Optional
 
 from pydantic import Field, RootModel
-from transpiler_mate.ogcapi_records.ogcapi_records_models import RecordCommonProperties
+from transpiler_mate.ogcapi.records.ogcapi_records_models import RecordCommonProperties
 
 
 class Model(RootModel[Any]):

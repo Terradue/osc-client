@@ -22,7 +22,7 @@ from types import SimpleNamespace
 
 import pystac
 
-from transpiler_mate.ogcapi_records.ogcapi_records_models import (
+from transpiler_mate.ogcapi.records.ogcapi_records_models import (
     Language,
     Link,
     RecordCommonProperties,
