@@ -143,7 +143,7 @@ $graph:
         prefix: --authorization-token
   stdout: publish_experiment_cli.log
   outputs:
-    out:
+    log:
       type: string
       outputBinding:
         glob: publish_experiment_cli.log
@@ -211,7 +211,7 @@ $graph:
         prefix: --authorization-token
   stdout: publish_product_cli.log
   outputs:
-    out:
+    log:
       type: string
       outputBinding:
         glob: publish_product_cli.log
@@ -238,8 +238,6 @@ $graph:
       type: string
     ogc_api_processes_endpoint:
       type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
-    osc_location:
-      type: Directory
     cwl_workflow_location:
       type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
     workflow_id:
@@ -247,36 +245,54 @@ $graph:
     authorization_token:
       type: string
   outputs:
-    experiment_out:
+    publish_experiment_log:
       type: string
-      outputSource: publish_experiment_cli/out
-    product_out:
+      outputSource: publish_experiment/log
+    publish_product_log:
       type: string
-      outputSource: publish_product_cli/out
+      outputSource: publish_product/log
   steps:
-    publish_experiment_cli:
+    sync_git_repository:
+      run: git_repository.cwl#sync_git_repository_cli
+      in: []
+      out:
+      - checkout_directory
+    publish_experiment:
       run: "#publish_experiment_cli"
       in:
         job_id: job_id
         project_id: project_id
         project_name: project_name
         ogc_api_processes_endpoint: ogc_api_processes_endpoint
-        osc_location: osc_location
+        osc_location: sync_git_repository/checkout_directory
         cwl_workflow_location: cwl_workflow_location
         workflow_id: workflow_id
         authorization_token: authorization_token
       out:
-      - out
-    publish_product_cli:
+      - log
+    publish_product:
       run: "#publish_product_cli"
       in:
         job_id: job_id
         project_id: project_id
         project_name: project_name
         ogc_api_processes_endpoint: ogc_api_processes_endpoint
-        osc_location: osc_location
+        osc_location: sync_git_repository/checkout_directory
         cwl_workflow_location: cwl_workflow_location
         experiment_id: job_id
         authorization_token: authorization_token
       out:
-      - out
+      - log
+    commit_and_push:
+      run: git_repository.cwl#commit_and_push_cli
+      in:
+        commit_message:
+          source:
+          - job_id
+          - workflow_id
+          - project_name
+          - project_id
+          linkMerge: merge_nested
+          valueFrom: Publish experiment and result job_id for $(self[0]) workflow $(self[1]) for project $(self[2]) ($(self[3]))
+      out:
+      - changes_pushed

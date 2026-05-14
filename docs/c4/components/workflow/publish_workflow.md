@@ -4,7 +4,7 @@ ESA Open Science Catalog Client
 
 > This software is licensed under the terms of the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) license - SPDX short identifier: [Apache-2.0](https://spdx.org/licenses/Apache-2.0)
 >
-> 2026-05-12 - 2026-05-14T12:32:09.919 Copyright [Terradue Srl](mailto:info@terradue.com) - > [https://ror.org/0069cx113](https://ror.org/0069cx113)
+> 2026-05-12 - 2026-05-14T16:28:43.872 Copyright [Terradue Srl](mailto:info@terradue.com) - > [https://ror.org/0069cx113](https://ror.org/0069cx113)
 
 ## Project Team
 
@@ -76,16 +76,17 @@ User Manual can be found on [https://terradue.github.io/osc-client/](https://ter
 
 | Id | Runs | Label | Doc |
 |----|------|-------|-----|
-| [commit_and_push](#commit_and_push_cli) | `#commit_and_push_cli` | None | None |
 | [sync_git_repository](#sync_git_repository_cli) | `#sync_git_repository_cli` | None | None |
 | [publish_workflow](#publish_workflow_cli) | `#publish_workflow_cli` | None | None |
+| [commit_and_push](#commit_and_push_cli) | `#commit_and_push_cli` | None | None |
 
 
 ### Outputs
 
 | Id | Type | Label | Doc |
 |----|------|-------|-----|
-| `out` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) | None | None |
+| `publish_workflow_log` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) | None | None |
+| `changes_pushed` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) | None | None |
 
 
 ### OGC API - Processes
@@ -136,31 +137,6 @@ Learn more about the [State diagram](https://en.wikipedia.org/wiki/State_diagram
 
 ![publish_workflow flow diagram](./publish_workflow/state.svg "publish_workflow State diagram")
 
-
-### Run in step
-
-`commit_and_push`
-
-
-
-## commit_and_push_cli
-
-### CWL Class
-
-[CommandLineTool](https://www.commonwl.org/v1.2/CommandLineTool.html#CommandLineTool)
-
-### Inputs
-
-| Id | Option | Type |
-|----|------|-------|
-| `commit_message` | `--commit_message` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) |
-
-### Execution usage example:
-
-```
-bash run.sh \
---commit_message <COMMIT_MESSAGE>
-```
 
 ### Run in step
 
@@ -218,5 +194,30 @@ osc-client <ARGUMENT_DYNAMICALLY_SET> \
 --ogc-api-processes-endpoint <OGC_API_PROCESSES_ENDPOINT> \
 --output <OSC_LOCATION> \
 --cwl_workflow_location <CWL_WORKFLOW_LOCATION>
+```
+
+### Run in step
+
+`commit_and_push`
+
+
+
+## commit_and_push_cli
+
+### CWL Class
+
+[CommandLineTool](https://www.commonwl.org/v1.2/CommandLineTool.html#CommandLineTool)
+
+### Inputs
+
+| Id | Option | Type |
+|----|------|-------|
+| `commit_message` | `--commit_message` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) |
+
+### Execution usage example:
+
+```
+bash run.sh \
+--commit_message <COMMIT_MESSAGE>
 ```
 

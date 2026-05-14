@@ -4,7 +4,7 @@ ESA Open Science Catalog Client
 
 > This software is licensed under the terms of the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) license - SPDX short identifier: [Apache-2.0](https://spdx.org/licenses/Apache-2.0)
 >
-> 2026-05-12 - 2026-05-14T12:33:07.434 Copyright [Terradue Srl](mailto:info@terradue.com) - > [https://ror.org/0069cx113](https://ror.org/0069cx113)
+> 2026-05-12 - 2026-05-14T16:29:54.277 Copyright [Terradue Srl](mailto:info@terradue.com) - > [https://ror.org/0069cx113](https://ror.org/0069cx113)
 
 ## Project Team
 
@@ -67,7 +67,6 @@ User Manual can be found on [https://terradue.github.io/osc-client/](https://ter
 | `project_id` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) | None | None |
 | `project_name` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) | None | None |
 | `ogc_api_processes_endpoint` | [URI](https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI):<ul><li>`value`: [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType)</li></ul> | None | None |
-| `osc_location` | [Directory](https://www.commonwl.org/v1.2/Workflow.html#Directory) | None | None |
 | `cwl_workflow_location` | [URI](https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI):<ul><li>`value`: [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType)</li></ul> | None | None |
 | `workflow_id` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) | None | None |
 | `authorization_token` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) | None | None |
@@ -77,16 +76,18 @@ User Manual can be found on [https://terradue.github.io/osc-client/](https://ter
 
 | Id | Runs | Label | Doc |
 |----|------|-------|-----|
-| [publish_experiment_cli](#publish_experiment_cli) | `#publish_experiment_cli` | None | None |
-| [publish_product_cli](#publish_product_cli) | `#publish_product_cli` | None | None |
+| [commit_and_push](#commit_and_push_cli) | `#commit_and_push_cli` | None | None |
+| [sync_git_repository](#sync_git_repository_cli) | `#sync_git_repository_cli` | None | None |
+| [publish_experiment](#publish_experiment_cli) | `#publish_experiment_cli` | None | None |
+| [publish_product](#publish_product_cli) | `#publish_product_cli` | None | None |
 
 
 ### Outputs
 
 | Id | Type | Label | Doc |
 |----|------|-------|-----|
-| `experiment_out` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) | None | None |
-| `product_out` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) | None | None |
+| `publish_experiment_log` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) | None | None |
+| `publish_product_log` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) | None | None |
 
 
 ### OGC API - Processes
@@ -140,7 +141,55 @@ Learn more about the [State diagram](https://en.wikipedia.org/wiki/State_diagram
 
 ### Run in step
 
-`publish_experiment_cli`
+`commit_and_push`
+
+
+
+## commit_and_push_cli
+
+### CWL Class
+
+[CommandLineTool](https://www.commonwl.org/v1.2/CommandLineTool.html#CommandLineTool)
+
+### Inputs
+
+| Id | Option | Type |
+|----|------|-------|
+| `commit_message` | `--commit_message` | [string](https://www.commonwl.org/v1.2/Workflow.html#CWLType) |
+
+### Execution usage example:
+
+```
+bash run.sh \
+--commit_message <COMMIT_MESSAGE>
+```
+
+### Run in step
+
+`sync_git_repository`
+
+
+
+## sync_git_repository_cli
+
+### CWL Class
+
+[CommandLineTool](https://www.commonwl.org/v1.2/CommandLineTool.html#CommandLineTool)
+
+### Inputs
+
+| Id | Option | Type |
+|----|------|-------|
+
+### Execution usage example:
+
+```
+bash run.sh \
+```
+
+### Run in step
+
+`publish_experiment`
 
 
 
@@ -179,7 +228,7 @@ osc-client <ARGUMENT_DYNAMICALLY_SET> \
 
 ### Run in step
 
-`publish_product_cli`
+`publish_product`
 
 
 

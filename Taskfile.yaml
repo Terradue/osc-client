@@ -45,6 +45,12 @@ tasks:
       ./cwl-workflows/{{.WORKFLOW_ID}}.cwl \
       --output ./cwl-workflows/{{.WORKFLOW_ID}}_bundled.cwl
     - |
+      uv run \
+      --no-cache \
+      --no-project \
+      --with cwltool \
+      cwltool --validate ./cwl-workflows/{{.WORKFLOW_ID}}_bundled.cwl
+    - |
       uv run --no-cache --no-project --with transpiler-mate transpiler-mate markdown \
         --workflow-id {{.WORKFLOW_ID}} \
         --output {{.DOC_DIR}} \

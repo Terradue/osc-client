@@ -134,7 +134,7 @@ $graph:
         position: 6
   stdout: publish_workflow_cli.log
   outputs:
-    out:
+    log:
       type: string
       outputBinding:
         glob: publish_workflow_cli.log
@@ -166,9 +166,12 @@ $graph:
     cwl_workflow_location:
       type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
   outputs:
-    out:
+    publish_workflow_log:
       type: string
-      outputSource: publish_workflow_cli/out
+      outputSource: publish_workflow/log
+    changes_pushed:
+      type: string
+      outputSource: commit_and_push/changes_pushed
   steps:
     sync_git_repository:
       run: git_repository.cwl#sync_git_repository_cli
@@ -185,7 +188,7 @@ $graph:
         osc_location: sync_git_repository/checkout_directory
         cwl_workflow_location: cwl_workflow_location
       out:
-      - out
+      - log
     commit_and_push:
       run: git_repository.cwl#commit_and_push_cli
       in:
