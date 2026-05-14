@@ -1,0 +1,29 @@
+@startuml
+title Create the Workflow definition
+
+start
+
+:Previously created CWL Workflow link; <<input>>
+    
+:Extract Workflow Metadata from CWL
+w/ transpiler-mate;
+
+:Initial Workflow ""record.json"" definition; <<output>>
+
+
+:Enrich Workflow Metadata with OSC Properties:
+* ""link.rel"" = ""application"" to CWL;
+
+:Initial Workflow ""record.json"" definition; <<output>>
+
+:Enrich Workflow Metadata with OSC Properties:
+* ""osc:project"" ID;
+
+:Refined Workflow ""record.json"" definition; <<output>>
+
+:Publish to OSC;
+
+stop
+
+@enduml
+

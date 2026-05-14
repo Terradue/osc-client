@@ -1,0 +1,55 @@
+@startuml
+title Create the Products definition
+
+start
+
+:Start drafting the Product ""record.json"" structure;
+
+:Initial Product ""record.json"" definition; <<output>>
+
+split
+    :Experiment link; <<input>>
+
+    :Enrich Product Metadata with OSC Properties:
+    * ""link.rel"" = ""related"" to the Experiment record;
+split again
+    :Job Id; <<input>>
+    
+    :Access to ""/jobs/{jobId}"";
+    
+    while (status == running)
+        :Wait the job execution is over;
+    endwhile
+    
+    if (status == succeeded?) then (yes)
+        while (every output)
+          :Enrich Product Metadata with OSC Properties:
+          * ""link.rel"" = ""item"";
+        endwhile
+
+        :Enrich Product Metadata with OSC Properties:
+        * ""osc:experiment""
+        * ""osc:status""
+        * ""osc:region""
+        * ""osc:type""
+        * ""osc:project""
+        * ""osc:missions""
+        * ""osc:variables""
+        * ""osc-prov:type""
+        * ""osc-prov:wasDerivedFrom""
+        * ""osc-prov:wasOutputFrom""
+        * ""osc-prov:describedByParameter"";
+    else (no)
+      :Manage exception;
+      stop
+    endif
+end split
+
+:Refined Product ""record.json"" definition; <<output>>
+
+:Publish Product to OSC;
+
+stop
+
+@enduml
+
