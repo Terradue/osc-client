@@ -37,17 +37,25 @@ tasks:
     cmds:
     - mkdir -p {{.DOC_DIR}}
     - |
+      uv run \
+      --no-cache \
+      --no-project \
+      --with cwl-loader \
+      cwl-loader bundle \
+      ./cwl-workflows/{{.WORKFLOW_ID}}.cwl \
+      --output ./cwl-workflows/{{.WORKFLOW_ID}}_bundled.cwl
+    - |
       uv run --no-cache --no-project --with transpiler-mate transpiler-mate markdown \
         --workflow-id {{.WORKFLOW_ID}} \
         --output {{.DOC_DIR}} \
         --code-repository {{.REPO_URL}} \
-        ./cwl-workflows/{{.WORKFLOW_ID}}.cwl
+        ./cwl-workflows/{{.WORKFLOW_ID}}_bundled.cwl
     - |
       uv run --no-cache --no-project --with cwl2puml cwl2puml --workflow-id {{.WORKFLOW_ID}} \
         --output {{.DOC_DIR}}/{{.WORKFLOW_ID}} \
         --convert-image \
         --image-format svg \
-        ./cwl-workflows/{{.WORKFLOW_ID}}.cwl
+        ./cwl-workflows/{{.WORKFLOW_ID}}_bundled.cwl
     - rm -rf {{.DOC_DIR}}/{{.WORKFLOW_ID}}/*.puml
 
   generate_workflows_doc:

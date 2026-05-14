@@ -127,6 +127,7 @@ $graph:
       inputBinding:
         position: 5
         prefix: --output
+        valueFrom: $(self.location)
     cwl_workflow_location:
       type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
       inputBinding:
@@ -148,9 +149,11 @@ $graph:
 
     For more information, see [Workflows](https://opensciencedata.esa.int/workflows/catalog).
   requirements:
+    MultipleInputFeatureRequirement: {}
     SchemaDefRequirement:
       types:
       - $import: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml
+    StepInputExpressionRequirement: {}
   inputs:
     workflow_id:
       type: string
@@ -160,8 +163,6 @@ $graph:
       type: string
     ogc_api_processes_endpoint:
       type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
-    osc_location:
-      type: Directory
     cwl_workflow_location:
       type: https://raw.githubusercontent.com/eoap/schemas/main/string_format.yaml#URI
   outputs:
@@ -169,14 +170,31 @@ $graph:
       type: string
       outputSource: publish_workflow_cli/out
   steps:
-    publish_workflow_cli:
+    sync_git_repository:
+      run: git_repository.cwl#sync_git_repository_cli
+      in: []
+      out:
+      - checkout_directory
+    publish_workflow:
       run: "#publish_workflow_cli"
       in:
         workflow_id: workflow_id
         project_id: project_id
         project_name: project_name
         ogc_api_processes_endpoint: ogc_api_processes_endpoint
-        osc_location: osc_location
+        osc_location: sync_git_repository/checkout_directory
         cwl_workflow_location: cwl_workflow_location
       out:
       - out
+    commit_and_push:
+      run: git_repository.cwl#commit_and_push_cli
+      in:
+        commit_message:
+          source:
+          - workflow_id
+          - project_name
+          - project_id
+          linkMerge: merge_nested
+          valueFrom: Publish workflow $(self[0]) for project $(self[1]) ($(self[2]))
+      out:
+      - changes_pushed

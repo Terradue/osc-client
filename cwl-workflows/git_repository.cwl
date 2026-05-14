@@ -14,6 +14,7 @@ $graph:
   requirements:
     NetworkAccess:
       networkAccess: true
+    InlineJavascriptRequirement: {}
     InitialWorkDirRequirement:
       listing:
       - entryname: run.sh
@@ -40,25 +41,25 @@ $graph:
             git clone --branch "$BRANCH" "$REPOSITORY_URL" "$REPOSITORY_PATH"
           fi
 
-          checkout_path="\$(cd "$REPOSITORY_PATH" && pwd -P)"
-          printf '%s' "$checkout_path" > repository_path.txt
-          ln -sfn "$checkout_path" checkout_directory
+          printf '%s' "$REPOSITORY_PATH" > repository_path.txt
   baseCommand:
   - bash
   - run.sh
   inputs: []
   stdout: sync_git_repository_cli.log
   outputs:
-    checkout_path:
-      type: string
-      outputBinding:
-        glob: repository_path.txt
-        loadContents: true
-        outputEval: $(self[0].contents)
     checkout_directory:
       type: Directory
       outputBinding:
-        glob: checkout_directory
+        glob: repository_path.txt
+        loadContents: true
+        outputEval: |
+          ${
+            return {
+              "class": "Directory",
+              "location": self[0].contents
+            };
+          }
     log:
       type: string
       outputBinding:
@@ -146,18 +147,6 @@ $graph:
         glob: changes_pushed.txt
         loadContents: true
         outputEval: $(self[0].contents)
-    pushed_branch:
-      type: string
-      outputBinding:
-        glob: pushed_branch.txt
-        loadContents: true
-        outputEval: $(self[0].contents)
-    log:
-      type: string
-      outputBinding:
-        glob: commit_and_push_cli.log
-        loadContents: true
-        outputEval: $(self[0].contents)
 
 - class: CommandLineTool
   id: create_pull_request_cli
@@ -238,9 +227,4 @@ $graph:
         glob: pull_request_url.txt
         loadContents: true
         outputEval: $(self[0].contents)
-    log:
-      type: string
-      outputBinding:
-        glob: create_pull_request_cli.log
-        loadContents: true
-        outputEval: $(self[0].contents)
+ 
